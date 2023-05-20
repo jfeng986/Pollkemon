@@ -2,7 +2,7 @@ import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import { User } from "./db/entities/User.js";
 import { ICreateUsersBody } from "./types.js";
 
-async function DoggrRoutes(app: FastifyInstance, _options = {}) {
+async function Routes(app: FastifyInstance, _options = {}) {
   if (!app) {
     throw new Error("Fastify instance has no value during routes construction");
   }
@@ -18,13 +18,13 @@ async function DoggrRoutes(app: FastifyInstance, _options = {}) {
   // CRUD
   // C
   app.post<{ Body: ICreateUsersBody }>("/users", async (req, reply) => {
-    const { name, email, petType } = req.body;
+    const { username, email, password } = req.body;
 
     try {
       const newUser = await req.em.create(User, {
-        name,
+        username,
         email,
-        petType,
+        password,
       });
 
       await req.em.flush();
@@ -54,11 +54,11 @@ async function DoggrRoutes(app: FastifyInstance, _options = {}) {
 
   // U
   app.put<{ Body: ICreateUsersBody }>("/users", async (req, reply) => {
-    const { name, email, petType } = req.body;
+    const { username, email, password } = req.body;
 
     const userToChange = await req.em.findOne(User, { email });
-    userToChange.name = name;
-    userToChange.petType = petType;
+    userToChange.username = username;
+    userToChange.password = password;
 
     await req.em.flush();
     console.log(userToChange);
@@ -82,4 +82,4 @@ async function DoggrRoutes(app: FastifyInstance, _options = {}) {
   });
 }
 
-export default DoggrRoutes;
+export default Routes;

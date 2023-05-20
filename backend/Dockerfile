@@ -9,8 +9,8 @@ COPY pnpm-lock.yaml .
 RUN pnpm install
 
 COPY . .
-EXPOSE 8080
-ENV ADDRESS=0.0.0.0 PORT=8080 DB_HOST=postgres DB_PORT=5432 DB_NAME=doggr DB_USER=doggr DB_PASS=doggr
+EXPOSE 8081
+ENV ADDRESS=0.0.0.0 PORT=8081 DB_HOST=postgres DB_PORT=5433 DB_NAME=pollkemon DB_USER=pollkemon DB_PASS=pollkemon
 
 RUN pnpm build
 

@@ -8,11 +8,8 @@ export class User extends BaseEntity {
   email!: string;
 
   @Property()
-  name!: string;
+  username!: string;
 
   @Property()
-  petType!: string;
-
-  @Property()
-  isMatched: boolean = false;
+  password!: string;
 }

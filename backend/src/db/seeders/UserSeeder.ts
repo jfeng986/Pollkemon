@@ -5,9 +5,9 @@ import { User } from "../entities/User.js";
 export class UserSeeder extends Seeder {
   async run(em: EntityManager): Promise<void> {
     em.create(User, {
-      name: "Spot",
-      email: "email@email.com",
-      petType: "Dog",
+      username: "test01",
+      email: "test01@email.com",
+      password: "test01",
     });
   }
 }

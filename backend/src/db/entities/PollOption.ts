@@ -7,7 +7,6 @@ import {
 } from "@mikro-orm/core";
 import { BaseEntity } from "./BaseEntity.js";
 import { User } from "./User.js";
-import { Topic } from "./Topic.js";
 import { Poll } from "./Poll.js";
 
 @Entity({ tableName: "poll_options" })

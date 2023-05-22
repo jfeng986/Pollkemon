@@ -12,4 +12,7 @@ export class User extends BaseEntity {
 
   @Property()
   password!: string;
+
+  @Property()
+  voted_polls!: number[];
 }

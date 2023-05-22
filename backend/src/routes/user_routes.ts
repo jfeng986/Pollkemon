@@ -1,12 +1,8 @@
 import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
-import { User } from "./db/entities/User.js";
-import { ICreateUsersBody } from "./types.js";
+import { User } from "../db/entities/User.js";
+import { ICreateUsersBody } from "../types.js";
 
-async function Routes(app: FastifyInstance, _options = {}) {
-  if (!app) {
-    throw new Error("Fastify instance has no value during routes construction");
-  }
-
+export function UserRoutesInit(app: FastifyInstance) {
   app.get("/hello", async (request: FastifyRequest, reply: FastifyReply) => {
     return "hello";
   });
@@ -19,16 +15,14 @@ async function Routes(app: FastifyInstance, _options = {}) {
   // C
   app.post<{ Body: ICreateUsersBody }>("/users", async (req, reply) => {
     const { username, email, password } = req.body;
-
     try {
       const newUser = await req.em.create(User, {
         username,
         email,
         password,
+        voted_polls: [],
       });
-
       await req.em.flush();
-
       console.log("Created new user:", newUser);
       return reply.send(newUser);
     } catch (err) {
@@ -41,7 +35,6 @@ async function Routes(app: FastifyInstance, _options = {}) {
   app.search("/users", async (req, reply) => {
     const { email } = req.body;
     console.log(req.body);
-
     try {
       const theUser = await req.em.findOne(User, { email });
       console.log(theUser);
@@ -55,11 +48,9 @@ async function Routes(app: FastifyInstance, _options = {}) {
   // U
   app.put<{ Body: ICreateUsersBody }>("/users", async (req, reply) => {
     const { username, email, password } = req.body;
-
     const userToChange = await req.em.findOne(User, { email });
     userToChange.username = username;
     userToChange.password = password;
-
     await req.em.flush();
     console.log(userToChange);
     reply.send(userToChange);
@@ -71,7 +62,6 @@ async function Routes(app: FastifyInstance, _options = {}) {
 
     try {
       const theUser = await req.em.findOne(User, { email });
-
       await req.em.remove(theUser).flush();
       console.log(theUser);
       reply.send(theUser);
@@ -81,5 +71,3 @@ async function Routes(app: FastifyInstance, _options = {}) {
     }
   });
 }
-
-export default Routes;

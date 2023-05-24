@@ -6,7 +6,8 @@ export type ICreateUsersBody = {
 };
 
 export type ICreatePollsBody = {
-  name: string;
+  id: number;
+  title: string;
   topic: number;
   description: string;
   created_by: number;

@@ -15,6 +15,7 @@ export type ICreatePollsBody = {
   duration: number;
   is_active: boolean;
   allow_multiple: boolean;
+  options: string[];
 };
 
 export type ICreateTopicsBody = {
@@ -23,6 +24,7 @@ export type ICreateTopicsBody = {
 };
 
 export type ICreatePollOptionsBody = {
+  id: number;
   option_name: string;
   poll: number;
 };

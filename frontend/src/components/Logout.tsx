@@ -1,11 +1,13 @@
 import { useAuth0 } from "@auth0/auth0-react";
 
-const LoginButton = () => {
+const LogoutButton = () => {
   const { logout, isAuthenticated } = useAuth0();
 
   return isAuthenticated ? (
-    <button onClick={() => logout()}>Log Out</button>
+    <button onClick={() => logout()} className="btn btn-ghost text-base">
+      Log Out
+    </button>
   ) : null;
 };
 
-export default LoginButton;
+export default LogoutButton;

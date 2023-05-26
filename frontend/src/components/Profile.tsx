@@ -1,26 +1,29 @@
 import { useAuth0 } from "@auth0/auth0-react";
+import { useEffect, useState } from "react";
 
 const Profile = () => {
-  const { user, isAuthenticated, isLoading } = useAuth0();
+  const { user, isAuthenticated } = useAuth0();
 
-  if (isLoading) {
-    return <div className="mx-auto">Loading ...</div>;
-  }
+  const [userName, setUserName] = useState("");
+  const [userEmail, setUserEmail] = useState("");
+
+  useEffect(() => {
+    const getUserData = async () => {
+      setUserName(user?.nickname?.toString() || "");
+      setUserEmail(user?.email?.toString() || "");
+    };
+    getUserData();
+  }, [user]);
 
   return isAuthenticated && user ? (
     <div>
-      <div>{JSON.stringify(user)}</div>
       <div className="flex justify-center">
-        {user.picture && <img src={user.picture} alt={user.name} />}
+        <div className="avatar">
+          <div className="w-10 mask mask-hexagon">
+            {user.picture && <img src={user.picture} alt={user.name} />}
+          </div>
+        </div>
       </div>
-      <h2>{user.name}</h2>
-      <ul>
-        {Object.keys(user).map((objKey, i) => (
-          <li key={i}>
-            {objKey}: {user[objKey]}{" "}
-          </li>
-        ))}
-      </ul>
     </div>
   ) : null;
 };

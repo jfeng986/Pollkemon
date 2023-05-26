@@ -49,9 +49,9 @@ export function PollRoutesInit(app: FastifyInstance) {
 
   //search a poll, return info with options
   app.search("/polls", async (req, reply) => {
-    const { id } = req.body;
+    const { poll_id } = req.body;
     try {
-      const thePoll = await req.em.findOne(Poll, { id });
+      const thePoll = await req.em.findOne(Poll, { id: poll_id });
       const theOptions = await req.em.find(PollOption, { poll_id: thePoll.id });
       const response = {
         poll: thePoll,
@@ -68,7 +68,7 @@ export function PollRoutesInit(app: FastifyInstance) {
   // udpate a poll
   app.put<{ Body: ICreatePollsBody }>("/polls", async (req, reply) => {
     const {
-      id,
+      poll_id,
       title,
       description,
       is_permanent,
@@ -76,7 +76,7 @@ export function PollRoutesInit(app: FastifyInstance) {
       allow_multiple,
       is_active,
     } = req.body;
-    const pollToChange = await req.em.findOne(Poll, { id });
+    const pollToChange = await req.em.findOne(Poll, { id: poll_id });
     pollToChange.title = title;
     pollToChange.description = description;
     pollToChange.is_permanent = is_permanent;
@@ -93,8 +93,10 @@ export function PollRoutesInit(app: FastifyInstance) {
   app.put<{ Body: ICreatePollOptionsBody }>(
     "/poll/option",
     async (req, reply) => {
-      const { id, option_name } = req.body;
-      const optionToChange = await req.em.findOne(PollOption, { id });
+      const { poll_option_id, option_name } = req.body;
+      const optionToChange = await req.em.findOne(PollOption, {
+        id: poll_option_id,
+      });
       optionToChange.option_name = option_name;
       await req.em.flush();
       console.log(optionToChange);
@@ -121,10 +123,10 @@ export function PollRoutesInit(app: FastifyInstance) {
   */
 
   // delete a poll(should delete all options as well)
-  app.delete<{ Body: { id } }>("/polls", async (req, reply) => {
-    const { id } = req.body;
+  app.delete<{ Body: { poll_id } }>("/polls", async (req, reply) => {
+    const { poll_id } = req.body;
     try {
-      const thePoll = await req.em.findOne(Poll, { id });
+      const thePoll = await req.em.findOne(Poll, { id: poll_id });
       const theOptions = await req.em.find(PollOption, { Poll: thePoll.id });
       await req.em.remove(thePoll).remove(theOptions).flush();
       console.log(thePoll);
@@ -136,16 +138,21 @@ export function PollRoutesInit(app: FastifyInstance) {
   });
 
   // delete a poll option
-  app.delete<{ Body: { id } }>("/poll/option", async (req, reply) => {
-    const { id } = req.body;
-    try {
-      const theOptions = await req.em.find(PollOption, { id: id });
-      await req.em.remove(theOptions).flush();
-      console.log(theOptions);
-      reply.send(theOptions);
-    } catch (err) {
-      console.error(err);
-      reply.status(500).send(err);
+  app.delete<{ Body: { poll_option_id } }>(
+    "/poll/option",
+    async (req, reply) => {
+      const { poll_option_id } = req.body;
+      try {
+        const theOptions = await req.em.find(PollOption, {
+          id: poll_option_id,
+        });
+        await req.em.remove(theOptions).flush();
+        console.log(theOptions);
+        reply.send(theOptions);
+      } catch (err) {
+        console.error(err);
+        reply.status(500).send(err);
+      }
     }
-  });
+  );
 }

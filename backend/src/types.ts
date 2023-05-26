@@ -6,7 +6,7 @@ export type ICreateUsersBody = {
 };
 
 export type ICreatePollsBody = {
-  id: number;
+  poll_id: number;
   title: string;
   topic: number;
   description: string;
@@ -19,12 +19,12 @@ export type ICreatePollsBody = {
 };
 
 export type ICreateTopicsBody = {
-  id: number;
+  topic_id: number;
   topic_name: string;
 };
 
 export type ICreatePollOptionsBody = {
-  id: number;
+  poll_option_id: number;
   option_name: string;
   poll: number;
 };

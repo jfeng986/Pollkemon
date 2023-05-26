@@ -1,6 +1,8 @@
 import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import { User } from "../db/entities/User.js";
 import { ICreateUsersBody } from "../types.js";
+import { Poll } from "../db/entities/Poll.js";
+import { PollOption } from "../db/entities/PollOption.js";
 
 export function UserRoutesInit(app: FastifyInstance) {
   app.get("/hello", async (request: FastifyRequest, reply: FastifyReply) => {
@@ -12,14 +14,13 @@ export function UserRoutesInit(app: FastifyInstance) {
   });
 
   // CRUD
-  // C
+  // create a new user
   app.post<{ Body: ICreateUsersBody }>("/users", async (req, reply) => {
-    const { username, email, password } = req.body;
+    const { username, email } = req.body;
     try {
       const newUser = await req.em.create(User, {
         username,
         email,
-        password,
         voted_polls: [],
       });
       await req.em.flush();
@@ -31,7 +32,7 @@ export function UserRoutesInit(app: FastifyInstance) {
     }
   });
 
-  //R
+  //search for a user
   app.search("/users", async (req, reply) => {
     const { email } = req.body;
     console.log(req.body);
@@ -45,21 +46,19 @@ export function UserRoutesInit(app: FastifyInstance) {
     }
   });
 
-  // U
+  //update a user
   app.put<{ Body: ICreateUsersBody }>("/users", async (req, reply) => {
     const { username, email, password } = req.body;
     const userToChange = await req.em.findOne(User, { email });
     userToChange.username = username;
-    userToChange.password = password;
     await req.em.flush();
     console.log(userToChange);
     reply.send(userToChange);
   });
 
-  // D
+  //delete a user
   app.delete<{ Body: { email } }>("/users", async (req, reply) => {
     const { email } = req.body;
-
     try {
       const theUser = await req.em.findOne(User, { email });
       await req.em.remove(theUser).flush();
@@ -70,4 +69,22 @@ export function UserRoutesInit(app: FastifyInstance) {
       reply.status(500).send(err);
     }
   });
+
+  //user vote on a poll
+  app.post<{ Body: { user_id; poll_option_id } }>(
+    "/users/vote",
+    async (req, reply) => {
+      const { user_id, poll_option_id } = req.body;
+      const theUser = await req.em.findOne(User, { id: user_id });
+      //const thePoll = await req.em.findOne(Poll, { id: poll_id });
+      const thePollOption = await req.em.findOne(PollOption, {
+        id: poll_option_id,
+      });
+      theUser.voted_polls.push(poll_option_id);
+      thePollOption.users.add(theUser);
+      await req.em.flush();
+      console.log(theUser);
+      reply.send(theUser);
+    }
+  );
 }

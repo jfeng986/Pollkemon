@@ -18,6 +18,13 @@ export function UserRoutesInit(app: FastifyInstance) {
   app.post<{ Body: ICreateUsersBody }>("/users", async (req, reply) => {
     const { username, email } = req.body;
     try {
+      const theUser = await req.em.findOne(User, { email });
+      if (theUser) {
+        console.log("User exists(login):", theUser);
+        return reply
+          .status(200)
+          .send({ message: "User exists(login)", theUser });
+      }
       const newUser = await req.em.create(User, {
         username,
         email,
@@ -25,15 +32,15 @@ export function UserRoutesInit(app: FastifyInstance) {
       });
       await req.em.flush();
       console.log("Created new user:", newUser);
-      return reply.send(newUser);
+      return reply.status(200).send({ message: "Created new user", newUser });
     } catch (err) {
-      console.log("Failed to create new user", err.message);
+      console.log("Failed to create or find user", err.message);
       return reply.status(500).send({ message: err.message });
     }
   });
 
   //search for a user
-  app.search("/users", async (req, reply) => {
+  app.post<{ Body: { email } }>("/users/search", async (req, reply) => {
     const { email } = req.body;
     console.log(req.body);
     try {

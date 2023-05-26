@@ -57,6 +57,9 @@ const Topics = () => {
           ))}
         </div>
       </div>
+      <div className="flex justify-center">
+        <button>Create Topic</button>
+      </div>
     </div>
   ) : null;
 };

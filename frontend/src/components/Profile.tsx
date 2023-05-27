@@ -40,10 +40,8 @@ const Profile = () => {
   return isAuthenticated && user ? (
     <div>
       <div className="flex justify-center">
-        <div className="avatar">
-          <div className="w-10 mask mask-hexagon">
-            {user.picture && <img src={user.picture} alt={user.name} />}
-          </div>
+        <div className="p-3">
+          <p>{username}</p>
         </div>
       </div>
     </div>

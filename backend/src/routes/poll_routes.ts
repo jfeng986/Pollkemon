@@ -48,13 +48,11 @@ export function PollRoutesInit(app: FastifyInstance) {
   });
 
   //search a poll, return info with options
-  app.search("/polls", async (req, reply) => {
+  app.post<{ Body: { poll_id: number } }>("/poll", async (req, reply) => {
     const { poll_id } = req.body;
     try {
-      const thePoll = await req.em.findOne(Poll, { id: poll_id });
-      const theOptions = await req.em.find(PollOption, { poll_id: thePoll.id });
+      const theOptions = await req.em.find(PollOption, { Poll: poll_id });
       const response = {
-        poll: thePoll,
         options: theOptions,
       };
       console.log(response);
@@ -104,24 +102,6 @@ export function PollRoutesInit(app: FastifyInstance) {
     }
   );
 
-  /*
-  // delete a poll(should delete all options as well)
-  app.delete<{ Body: ICreatePollOptionsBody }>("/polls", async (req, reply) => {
-    const { id } = req.body;
-    try {
-      const thePoll = await req.em.findOne(Poll, { id });
-      const theOptions = await req.em.find(PollOption, { Poll: thePoll.id });
-
-      await req.em.remove(thePoll).remove(theOptions).flush();
-      console.log(thePoll);
-      reply.send(thePoll);
-    } catch (err) {
-      console.error(err);
-      reply.status(500).send(err);
-    }
-  });
-  */
-
   // delete a poll(should delete all options as well)
   app.delete<{ Body: { poll_id } }>("/polls", async (req, reply) => {
     const { poll_id } = req.body;
@@ -149,6 +129,23 @@ export function PollRoutesInit(app: FastifyInstance) {
         await req.em.remove(theOptions).flush();
         console.log(theOptions);
         reply.send(theOptions);
+      } catch (err) {
+        console.error(err);
+        reply.status(500).send(err);
+      }
+    }
+  );
+
+  // get all polls for a topic
+  app.post<{ Body: { topic_id: number } }>(
+    "/topic/polls",
+    async (req, reply) => {
+      const { topic_id } = req.body;
+      try {
+        const thePolls = await req.em.find(Poll, { topic: topic_id });
+        console.log(thePolls);
+        //get number of voted user for each poll
+        reply.send(thePolls);
       } catch (err) {
         console.error(err);
         reply.status(500).send(err);

@@ -1,6 +1,7 @@
 import { useAuth0 } from "@auth0/auth0-react";
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { Link, useLocation } from "react-router-dom";
 
 // Define the type for the topic
 type Topic = {
@@ -13,8 +14,8 @@ type Topic = {
 const Topics = () => {
   const { user, isAuthenticated, loginWithRedirect } = useAuth0();
   const [newTopic, setNewTopic] = useState("");
-
   const [topics, setTopics] = useState<Topic[]>([]);
+  const location = useLocation();
 
   useEffect(() => {
     const getTopics = async () => {
@@ -26,7 +27,7 @@ const Topics = () => {
       }
     };
     getTopics();
-  }, []);
+  }, [location]);
 
   const getRandomColorClass = () => {
     const colors = [
@@ -46,6 +47,8 @@ const Topics = () => {
     if (!isAuthenticated || !user) {
       console.log("User is not authenticated");
       loginWithRedirect();
+    } else {
+      console.log("User is authenticated");
     }
   };
 
@@ -71,11 +74,10 @@ const Topics = () => {
               key={topic.id}
               className={`p-4 ${index % 2 !== 0 ? "pl-10" : ""}`}
             >
-              <button
-                className={`btn ${getRandomColorClass()} `}
-                onClick={handleTopicClick}
-              >
-                {topic.topic_name}
+              <button className={`btn ${getRandomColorClass()} `}>
+                <Link to={`/topic/${topic.id}`} onClick={handleTopicClick}>
+                  {topic.topic_name}
+                </Link>
               </button>
             </div>
           ))}

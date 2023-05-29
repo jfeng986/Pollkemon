@@ -78,16 +78,17 @@ export function UserRoutesInit(app: FastifyInstance) {
   });
 
   //user vote on a poll
-  app.post<{ Body: { user_id; poll_option_id } }>(
-    "/users/vote",
+  app.post<{ Body: { user_id; poll_id; poll_option_id } }>(
+    "/user/vote",
     async (req, reply) => {
-      const { user_id, poll_option_id } = req.body;
+      const { user_id, poll_id, poll_option_id } = req.body;
       const theUser = await req.em.findOne(User, { id: user_id });
-      //const thePoll = await req.em.findOne(Poll, { id: poll_id });
+      const thePoll = await req.em.findOne(Poll, { id: poll_id });
       const thePollOption = await req.em.findOne(PollOption, {
         id: poll_option_id,
       });
       theUser.voted_polls.push(poll_option_id);
+      thePoll.total_voted += 1;
       thePollOption.users.add(theUser);
       await req.em.flush();
       console.log(theUser);

@@ -28,4 +28,7 @@ export class Poll extends BaseEntity {
 
   @Property()
   allow_multiple!: boolean;
+
+  @Property()
+  total_voted!: number;
 }

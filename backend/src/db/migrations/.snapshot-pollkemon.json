@@ -247,6 +247,15 @@
           "primary": false,
           "nullable": false,
           "mappedType": "boolean"
+        },
+        "total_voted": {
+          "name": "total_voted",
+          "type": "int",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "integer"
         }
       },
       "name": "polls",

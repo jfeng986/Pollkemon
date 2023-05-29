@@ -8,19 +8,19 @@ export class PollOptioneeder extends Seeder {
     context.poll_1_option_1 = em.create(PollOption, {
       Poll: context.poll1,
       option_name: "red",
-      users: [context.user1, context.user2],
+      users: [],
     });
 
     context.poll_1_option_2 = em.create(PollOption, {
       Poll: context.poll1,
       option_name: "blue",
-      users: [context.user3, context.user4],
+      users: [],
     });
 
     context.poll_1_option_3 = em.create(PollOption, {
       Poll: context.poll1,
       option_name: "green",
-      users: [context.user5],
+      users: [],
     });
 
     context.poll_1_option_4 = em.create(PollOption, {
@@ -52,26 +52,20 @@ export class PollOptioneeder extends Seeder {
     context.poll_3_option_1 = em.create(PollOption, {
       Poll: context.poll3,
       option_name: "dog",
-      users: [context.user1],
+      users: [],
     });
 
     context.poll_3_option_2 = em.create(PollOption, {
       Poll: context.poll3,
       option_name: "cat",
-      users: [context.user2, context.user3, context.user4, context.user5],
+      users: [],
     });
 
     //poll 4
     context.poll_4_option_1 = em.create(PollOption, {
       Poll: context.poll4,
       option_name: "basketball",
-      users: [
-        context.user1,
-        context.user2,
-        context.user3,
-        context.user4,
-        context.user5,
-      ],
+      users: [],
     });
 
     context.poll_4_option_2 = em.create(PollOption, {
@@ -84,25 +78,19 @@ export class PollOptioneeder extends Seeder {
     context.poll_5_option_1 = em.create(PollOption, {
       Poll: context.poll5,
       option_name: "Star Wars",
-      users: [
-        context.user1,
-        context.user2,
-        context.user3,
-        context.user4,
-        context.user5,
-      ],
+      users: [],
     });
 
     context.poll_5_option_2 = em.create(PollOption, {
       Poll: context.poll5,
       option_name: "Star Trek",
-      users: [context.user1, context.user2, context.user3, context.user4],
+      users: [],
     });
 
     context.poll_5_option_3 = em.create(PollOption, {
       Poll: context.poll5,
       option_name: "Stargate",
-      users: [context.user1, context.user2, context.user3],
+      users: [],
     });
   }
 }

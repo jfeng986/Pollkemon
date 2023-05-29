@@ -13,6 +13,7 @@ export class PollSeeder extends Seeder {
       is_active: true,
       allow_multiple: false,
       topic: context.topic_other,
+      total_voted: 0,
     });
 
     context.poll2 = em.create(Poll, {
@@ -24,6 +25,7 @@ export class PollSeeder extends Seeder {
       is_active: true,
       allow_multiple: false,
       topic: context.topic_tech,
+      total_voted: 0,
     });
 
     context.poll3 = em.create(Poll, {
@@ -35,6 +37,7 @@ export class PollSeeder extends Seeder {
       is_active: true,
       allow_multiple: false,
       topic: context.topic_other,
+      total_voted: 0,
     });
 
     context.poll4 = em.create(Poll, {
@@ -46,6 +49,7 @@ export class PollSeeder extends Seeder {
       is_active: false,
       allow_multiple: false,
       topic: context.topic_sports,
+      total_voted: 0,
     });
 
     context.poll5 = em.create(Poll, {
@@ -57,6 +61,7 @@ export class PollSeeder extends Seeder {
       is_active: true,
       allow_multiple: true,
       topic: context.topic_enterainment,
+      total_voted: 0,
     });
   }
 }

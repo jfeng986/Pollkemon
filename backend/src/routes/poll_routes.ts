@@ -3,6 +3,7 @@ import { Poll } from "../db/entities/Poll.js";
 import { ICreatePollsBody } from "../types.js";
 import { PollOption } from "../db/entities/PollOption.js";
 import { ICreatePollOptionsBody } from "../types.js";
+import { User } from "../db/entities/User.js";
 
 export function PollRoutesInit(app: FastifyInstance) {
   // CRUD
@@ -19,18 +20,28 @@ export function PollRoutesInit(app: FastifyInstance) {
       allow_multiple,
       options,
     } = req.body;
+    //search userID by email
     try {
+      const created_by_email = String(created_by);
+      const theUser = await req.em.findOne(User, { email: created_by_email });
+      if (!theUser) {
+        console.log("User does not exist");
+        return reply.status(200).send({ message: "User does not exist" });
+      }
+      const created_by_id = Number(theUser.id);
       const newPoll = await req.em.create(Poll, {
         title,
         topic,
         description,
-        created_by,
+        created_by: created_by_id,
         is_permanent,
         duration,
         allow_multiple,
         is_active: true,
+        total_voted: 0,
       });
-
+      console.log(newPoll);
+      console.log(options);
       for (const option of options) {
         await req.em.create(PollOption, {
           option_name: option,
@@ -42,7 +53,7 @@ export function PollRoutesInit(app: FastifyInstance) {
       console.log("Created new poll:", newPoll);
       return reply.send(newPoll);
     } catch (err) {
-      console.log("Failed to create new poll", err.message);
+      console.log("Failed to find user", err.message);
       return reply.status(500).send({ message: err.message });
     }
   });

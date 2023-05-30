@@ -53,6 +53,10 @@ const Topics = () => {
   };
 
   const onCreateTopicClick = async () => {
+    if (newTopic.trim() === "") {
+      alert("Topic name cannot be empty");
+      return;
+    }
     try {
       const response = await axios.post("http://localhost:8081/topics", {
         topic_name: newTopic,

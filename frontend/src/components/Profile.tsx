@@ -3,12 +3,45 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 
 const Profile = () => {
-  const { user, isAuthenticated } = useAuth0();
+  const { user, isAuthenticated, getAccessTokenSilently } = useAuth0();
 
   const [username, setUsername] = useState("");
   const [userEmail, setUserEmail] = useState("");
   const [foundUser, setFoundUser] = useState(null);
 
+  /*
+  const [userMetadata, setUserMetadata] = useState(null);
+
+  useEffect(() => {
+    const getUserMetadata = async () => {
+      const domain = "dev-z3zlzuy1iirtsvpc.us.auth0.com";
+
+      try {
+        const accessToken = await getAccessTokenSilently({
+          authorizationParams: {
+            audience: `https://${domain}/api/v2/`,
+            scope: "read:current_user",
+          },
+        });
+
+        const userDetailsByIdUrl = `https://${domain}/api/v2/users/${user?.sub}`;
+
+        const metadataResponse = await fetch(userDetailsByIdUrl, {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        });
+        const data = await metadataResponse.json();
+        setUserMetadata(data);
+        console.log("User Metadata:", userMetadata);
+      } catch (e: any) {
+        console.log(e.message);
+      }
+    };
+
+    getUserMetadata();
+  }, [getAccessTokenSilently, user?.sub]);
+  */
   useEffect(() => {
     const getUserData = async () => {
       setUsername(user?.nickname?.toString() || "");
@@ -29,6 +62,7 @@ const Profile = () => {
 
     getUserData();
     if (userEmail) {
+      console.log("searching for user", userEmail);
       searchUserByEmail();
     }
   }, [user, userEmail]);

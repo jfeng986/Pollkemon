@@ -20,7 +20,6 @@ export function UserRoutesInit(app: FastifyInstance) {
     try {
       const theUser = await req.em.findOne(User, { email });
       if (theUser) {
-        console.log("User exists(login):", theUser);
         return reply
           .status(200)
           .send({ message: "User exists(login)", theUser });

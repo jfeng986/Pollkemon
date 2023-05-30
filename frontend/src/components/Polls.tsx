@@ -25,7 +25,6 @@ const Polls = () => {
 
   const { topicId } = useParams<RouteParams>();
   const [polls, setPolls] = useState<Poll[]>([]);
-
   const [newPollName, setNewPollName] = useState("");
   const [newPollDescription, setNewPollDescription] = useState("");
   const [newPollDurationHour, setNewPollDurationHour] = useState(0);
@@ -90,7 +89,7 @@ const Polls = () => {
 
   return (
     <div>
-      <h2>Polls for Topic</h2>
+      <h2>Polls for This Topic</h2>
       {topicId}
       <div className="flex justify-center pt-8">
         <div className="flex flex-col max-w-screen-md">

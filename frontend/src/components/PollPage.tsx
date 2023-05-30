@@ -13,6 +13,7 @@ type PollOption = {
   option_name: number;
   created_at: string;
   updated_at: string;
+  voted_num: number;
 };
 
 const PollPage = () => {
@@ -37,7 +38,14 @@ const PollPage = () => {
     getPollOptions();
   }, []);
 
-  const handlePollOptionClick = () => {};
+  const onPollOptionClick = (optionId: number) => {
+    console.log("onPollOptionClick:", optionId);
+    console.log("email:", user?.email);
+    const response = axios.post(`http://localhost:8081/poll/vote`, {
+      poll_id: pollId,
+      option_id: optionId,
+    });
+  };
 
   if (!isAuthenticated || !user) {
     loginWithRedirect();
@@ -50,7 +58,18 @@ const PollPage = () => {
       <div className="flex justify-center pt-8">
         <div className="flex flex-col max-w-screen-md">
           {pollOptions.map((pollOption) => (
-            <div key={pollOption.id}>{pollOption.option_name}</div>
+            <div key={pollOption.id} className="flex items-center mb-4">
+              <div className="p-4 mr-4 bg-gray-200">
+                {pollOption.option_name}
+              </div>
+              <div className="p-4 mr-4 bg-gray-200">{pollOption.voted_num}</div>
+              <button
+                className="px-4 py-2 text-white bg-blue-500 rounded hover:bg-blue-600"
+                onClick={() => onPollOptionClick(pollOption.id)}
+              >
+                Vote
+              </button>
+            </div>
           ))}
         </div>
       </div>

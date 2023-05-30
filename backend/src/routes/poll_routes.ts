@@ -163,4 +163,23 @@ export function PollRoutesInit(app: FastifyInstance) {
       }
     }
   );
+
+  //vote on a poll
+  app.post<{ Body: { poll_id: number; option_id: number } }>(
+    "/poll/vote",
+    async (req, reply) => {
+      const { poll_id, option_id } = req.body;
+
+      try {
+        const theOption = await req.em.findOne(PollOption, { id: option_id });
+        theOption.voted_num += 1;
+        await req.em.flush();
+        console.log(theOption);
+        reply.send(theOption);
+      } catch (err) {
+        console.error(err);
+        reply.status(500).send(err);
+      }
+    }
+  );
 }

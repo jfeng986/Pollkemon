@@ -19,4 +19,7 @@ export class PollOption extends BaseEntity {
 
   @ManyToMany(() => User)
   users = new Collection<User>(this);
+
+  @Property()
+  voted_num!: number;
 }

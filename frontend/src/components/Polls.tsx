@@ -47,6 +47,7 @@ const Polls = () => {
         console.error(error);
       }
     };
+    console.log("user: ", user);
     getPolls();
   }, []);
 

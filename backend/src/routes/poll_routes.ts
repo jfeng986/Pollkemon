@@ -46,6 +46,7 @@ export function PollRoutesInit(app: FastifyInstance) {
         await req.em.create(PollOption, {
           option_name: option,
           Poll: newPoll,
+          voted_num: 0,
         });
       }
 

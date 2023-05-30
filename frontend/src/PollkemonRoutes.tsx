@@ -3,12 +3,16 @@ import LoginButton from "./components/LoginButton";
 import LogoutButton from "./components/LogoutButton";
 import Profile from "./components/Profile";
 import Topics from "./components/Topics";
-import Polls from "./components/Polls"; // Assuming this is the path to your Polls component
+import Polls from "./components/Polls";
 import { useAuth0 } from "@auth0/auth0-react";
 import PollPage from "./components/PollPage";
 
 export default function AppRoutes() {
-  const { isLoading, error } = useAuth0();
+  const { isLoading, error, isAuthenticated } = useAuth0();
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div className="h-screen w-screen flex flex-col p-4">
@@ -16,16 +20,15 @@ export default function AppRoutes() {
         <h1 className="text-4xl">🄿🄾🄻🄻🄺🄴🄼🄾🄽</h1>
         <div className="text-right">
           {error && <p>Authentication Error</p>}
-          {!error && isLoading && <p>Loading...</p>}
-          {!error && !isLoading && (
+          {!error && isAuthenticated && (
             <>
-              <LoginButton />
               <div className="flex">
                 <Profile />
                 <LogoutButton />
               </div>
             </>
           )}
+          {!error && !isAuthenticated && <LoginButton />}
         </div>
       </div>
       <div></div>

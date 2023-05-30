@@ -127,11 +127,14 @@ const Topics = () => {
               key={topic.id}
               className={`p-4 ${index % 2 !== 0 ? "pl-10" : ""}`}
             >
-              <button className={`btn ${getRandomColorClass()} `}>
-                <Link to={`/topic/${topic.id}`} onClick={handleTopicClick}>
+              <Link to={`/topic/${topic.id}`}>
+                <button
+                  className={`btn ${getRandomColorClass()} `}
+                  onClick={handleTopicClick}
+                >
                   {topic.topic_name}
-                </Link>
-              </button>
+                </button>
+              </Link>
             </div>
           ))}
         </div>

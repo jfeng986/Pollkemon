@@ -29,7 +29,10 @@ const PollPage = () => {
           poll_id: pollId,
         });
         console.log("response.data", response.data);
-        setPollOptions(response.data.options);
+        const sortedOptions = response.data.options.sort(
+          (a: PollOption, b: PollOption) => a.id - b.id
+        );
+        setPollOptions(sortedOptions);
         console.log("pollOptions", pollOptions);
       } catch (error) {
         console.error(error);
@@ -38,13 +41,23 @@ const PollPage = () => {
     getPollOptions();
   }, []);
 
-  const onPollOptionClick = (optionId: number) => {
-    console.log("onPollOptionClick:", optionId);
+  const onPollOptionClick = (option: PollOption) => {
+    console.log("onPollOptionClick:", option.id);
     console.log("email:", user?.email);
     const response = axios.post(`http://localhost:8081/poll/vote`, {
       poll_id: pollId,
-      option_id: optionId,
+      option_id: option.id,
     });
+    setPollOptions(
+      (prevOptions) =>
+        prevOptions
+          .map((prevOption) =>
+            prevOption.id === option.id
+              ? { ...prevOption, voted_num: prevOption.voted_num + 1 }
+              : prevOption
+          )
+          .sort((a, b) => a.id - b.id) // sort by id
+    );
   };
 
   if (!isAuthenticated || !user) {
@@ -65,7 +78,7 @@ const PollPage = () => {
               <div className="p-4 mr-4 bg-gray-200">{pollOption.voted_num}</div>
               <button
                 className="px-4 py-2 text-white bg-blue-500 rounded hover:bg-blue-600"
-                onClick={() => onPollOptionClick(pollOption.id)}
+                onClick={() => onPollOptionClick(pollOption)}
               >
                 Vote
               </button>

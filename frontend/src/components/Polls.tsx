@@ -124,19 +124,20 @@ const Polls = () => {
         <table className="table w-full">
           <thead>
             <tr className="">
-              <th className="w-1/3">POLL</th>
-              <th className="w-1/3">Description</th>
-              <th className="w-1/3">ok</th>
+              <th className="">POLL</th>
+              <th className="">Description</th>
+              <th className=""></th>
             </tr>
           </thead>
-          <tbody className="w-full">
+          <tbody>
             {polls.map((poll) => (
               <tr key={poll.id} className="hover">
                 <th>
                   <Link to={`/poll/${poll.id}`}>{poll.title}</Link>
                 </th>
                 <td>{poll.description}</td>
-                <td className="dropdown dropdown-right">
+
+                <td className="dropdown dropdown-left w-full">
                   <label tabIndex={0} className="btn m-1">
                     More Info
                   </label>
@@ -146,7 +147,7 @@ const Polls = () => {
                   >
                     <li>Created By: {poll.created_by_user}</li>
                     <li>
-                      Created At:
+                      Created At:{" "}
                       {new Date(poll.created_at).toLocaleDateString("en-US", {
                         month: "2-digit",
                         day: "2-digit",

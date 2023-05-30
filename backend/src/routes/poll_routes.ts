@@ -174,6 +174,8 @@ export function PollRoutesInit(app: FastifyInstance) {
       try {
         const theOption = await req.em.findOne(PollOption, { id: option_id });
         theOption.voted_num += 1;
+        const thePoll = await req.em.findOne(Poll, { id: poll_id });
+        thePoll.total_voted += 1;
         await req.em.flush();
         console.log(theOption);
         reply.send(theOption);

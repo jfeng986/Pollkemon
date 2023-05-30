@@ -19,6 +19,8 @@ type Poll = {
   is_active: boolean;
   allow_multiple: boolean;
   created_by_user: string;
+  total_voted: number;
+  created_at: string;
 };
 
 const Polls = () => {
@@ -38,10 +40,10 @@ const Polls = () => {
   useEffect(() => {
     const getPolls = async () => {
       try {
-        console.log("topicId", topicId);
         const response = await axios.post(`http://localhost:8081/topic/polls`, {
           topic_id: topicId,
         });
+        console.log("response.data", response.data);
         const pollsWithUserNames = await Promise.all(
           response.data.map(async (poll: Poll) => {
             const created_by_user = await getUserName(poll.created_by);
@@ -60,9 +62,7 @@ const Polls = () => {
     try {
       const response = await axios.post(
         `http://localhost:8081/users/searchid`,
-        {
-          id,
-        }
+        { id }
       );
       return response.data.username;
     } catch (error) {
@@ -88,6 +88,9 @@ const Polls = () => {
     } else if (newPollOptions.length === 0) {
       alert("Poll must have at least one option");
       return;
+    } else if (newPollDurationHour < 0 || newPollDurationMinute < 0) {
+      alert("Poll duration must be greater than 0");
+      return;
     }
     try {
       const response = await axios.post("http://localhost:8081/polls", {
@@ -112,32 +115,58 @@ const Polls = () => {
     loginWithRedirect();
     return null;
   }
-
+  //Description: {poll.description}
   return (
     <div>
       <h2>Polls for This Topic</h2>
       {topicId}
-      <div className="overflow-x-auto">
+      <div>
         <table className="table w-full">
           <thead>
-            <tr>
-              <th>POLL</th>
-              <th>Created By</th>
-              <th>Active</th>
+            <tr className="">
+              <th className="w-1/3">POLL</th>
+              <th className="w-1/3">Description</th>
+              <th className="w-1/3">ok</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody className="w-full">
             {polls.map((poll) => (
               <tr key={poll.id} className="hover">
                 <th>
                   <Link to={`/poll/${poll.id}`}>{poll.title}</Link>
                 </th>
-                <td>{poll.created_by_user}</td>
-                <td>{poll.is_active ? "Yes" : "No"}</td>
+                <td>{poll.description}</td>
+                <td className="dropdown dropdown-right">
+                  <label tabIndex={0} className="btn m-1">
+                    More Info
+                  </label>
+                  <ul
+                    tabIndex={0}
+                    className="dropdown-content menu p-2 shadow bg-base-100 rounded-box "
+                  >
+                    <li>Created By: {poll.created_by_user}</li>
+                    <li>
+                      Created At:
+                      {new Date(poll.created_at).toLocaleDateString("en-US", {
+                        month: "2-digit",
+                        day: "2-digit",
+                        year: "numeric",
+                      })}
+                    </li>
+                    <li>Popularity: {poll.total_voted}</li>
+                    <li>Active: {poll.is_active ? "Yes" : "No"}</li>
+                    <li>
+                      Allow Multiple: {poll.allow_multiple ? "Yes" : "No"}
+                    </li>
+                  </ul>
+                </td>
               </tr>
             ))}
           </tbody>
         </table>
+      </div>
+      <div className="flex justify-center">
+        {polls.length === 0 ? <p>There is no poll now, create one</p> : null}
       </div>
       <div className="flex justify-center pt-8">
         <label htmlFor="my-modal" className="btn btn-outline">
@@ -195,7 +224,6 @@ const Polls = () => {
                 }
               />
             </div>
-
             <h3 className="font-bold text-2xl flex justify-center pt-4">
               Allow Multiple:
             </h3>

@@ -22,6 +22,7 @@ const Topics = () => {
       try {
         const response = await axios.get("http://localhost:8081/topics");
         setTopics(response.data);
+        console.log(response.data);
       } catch (error) {
         console.error(error);
       }
@@ -31,13 +32,24 @@ const Topics = () => {
 
   const getRandomColorClass = () => {
     const colors = [
-      "btn-active",
-      "btn-primary",
-      "btn-secondary",
-      "btn-info",
-      "btn-success",
-      "btn-warning",
-      "btn-error",
+      "bg-orange-500",
+      "bg-pink-500",
+      "bg-teal-500",
+      "bg-red-500",
+      "bg-fuchsia-500",
+      "bg-rose-500",
+      "bg-blue-500",
+      "bg-yellow-500",
+      "bg-purple-500",
+      "bg-violet-500",
+      "bg-indigo-500",
+      "bg-sky-500",
+      "bg-gray-500",
+      "bg-cyan-500",
+      "bg-lime-500",
+      "bg-emerald-500",
+      "bg-amber-500",
+      "bg-lightBlue-500",
     ];
     const randomIndex = Math.floor(Math.random() * colors.length);
     return colors[randomIndex];

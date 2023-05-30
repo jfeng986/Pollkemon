@@ -38,12 +38,26 @@ export function UserRoutesInit(app: FastifyInstance) {
     }
   });
 
-  //search for a user
+  //search for a user by email
   app.post<{ Body: { email } }>("/users/search", async (req, reply) => {
     const { email } = req.body;
     console.log(req.body);
     try {
       const theUser = await req.em.findOne(User, { email });
+      console.log(theUser);
+      reply.send(theUser);
+    } catch (err) {
+      console.error(err);
+      reply.status(500).send(err);
+    }
+  });
+
+  //search for a user by id
+  app.post<{ Body: { id } }>("/users/searchid", async (req, reply) => {
+    const { id } = req.body;
+    console.log(req.body);
+    try {
+      const theUser = await req.em.findOne(User, { id });
       console.log(theUser);
       reply.send(theUser);
     } catch (err) {

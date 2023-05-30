@@ -14,10 +14,16 @@ export default function AppRoutes() {
     return <div>Loading...</div>;
   }
 
+  const returnHome = () => {
+    window.location.href = "/";
+  };
+
   return (
     <div className="h-screen w-screen flex flex-col p-4">
       <div className="flex items-start justify-between">
-        <h1 className="text-4xl">🄿🄾🄻🄻🄺🄴🄼🄾🄽</h1>
+        <button className="text-4xl" onClick={returnHome}>
+          🄿🄾🄻🄻🄺🄴🄼🄾🄽
+        </button>
         <div className="text-right">
           {error && <p>Authentication Error</p>}
           {!error && isAuthenticated && (

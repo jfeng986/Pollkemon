@@ -183,4 +183,30 @@ export function PollRoutesInit(app: FastifyInstance) {
       }
     }
   );
+
+  //get all polls created by users
+  app.post<{ Body: { polls: Poll[] } }>(
+    "/topic/createdbyuser",
+    async (req, reply) => {
+      const { polls } = req.body;
+      //console.log(polls);
+      try {
+        for (const poll of polls) {
+          const theUser = await req.em.findOne(User, {
+            id: Number(poll.created_by),
+          });
+          poll.created_by = theUser;
+        }
+        let createdByList = [];
+        for (const poll of polls) {
+          createdByList.push(poll.created_by.username);
+        }
+        console.log(createdByList);
+        reply.send(createdByList);
+      } catch (err) {
+        console.error(err);
+        reply.send(err);
+      }
+    }
+  );
 }

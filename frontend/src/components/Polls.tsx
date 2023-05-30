@@ -18,6 +18,7 @@ type Poll = {
   duration: number;
   is_active: boolean;
   allow_multiple: boolean;
+  created_by_user: string;
 };
 
 const Polls = () => {
@@ -41,17 +42,45 @@ const Polls = () => {
         const response = await axios.post(`http://localhost:8081/topic/polls`, {
           topic_id: topicId,
         });
-        console.log(response.data);
-        setPolls(response.data);
+        const pollsWithUserNames = await Promise.all(
+          response.data.map(async (poll: Poll) => {
+            const created_by_user = await getUserName(poll.created_by);
+            return { ...poll, created_by_user };
+          })
+        );
+        setPolls(pollsWithUserNames);
       } catch (error) {
         console.error(error);
       }
     };
-    console.log("user: ", user);
     getPolls();
   }, []);
 
-  const handlePollClick = () => {};
+  const getUserName = async (id: number) => {
+    try {
+      const response = await axios.post(
+        `http://localhost:8081/users/searchid`,
+        {
+          id,
+        }
+      );
+      return response.data.username;
+    } catch (error) {
+      console.error(error);
+      return "";
+    }
+  };
+
+  useEffect(() => {
+    if (newPollDurationHour === 0 && newPollDurationMinute === 0) {
+      setIsPermanent(true);
+      setNewPollDuration(-1);
+    } else {
+      setIsPermanent(false);
+      setNewPollDuration(newPollDurationHour * 60 + newPollDurationMinute);
+    }
+  }, [newPollDurationHour, newPollDurationMinute]);
+
   const onCreatePollClick = async () => {
     if (newPollName.trim() === "") {
       alert("Poll name cannot be empty");
@@ -59,11 +88,6 @@ const Polls = () => {
     } else if (newPollOptions.length === 0) {
       alert("Poll must have at least one option");
       return;
-    }
-    if (newPollDurationHour === 0 && newPollDurationMinute === 0) {
-      setIsPermanent(true);
-    } else {
-      setNewPollDuration(newPollDurationHour * 60 + newPollDurationMinute);
     }
     try {
       const response = await axios.post("http://localhost:8081/polls", {
@@ -80,6 +104,7 @@ const Polls = () => {
       window.location.reload();
     } catch (error) {
       console.error(error);
+      return "";
     }
   };
 
@@ -92,19 +117,30 @@ const Polls = () => {
     <div>
       <h2>Polls for This Topic</h2>
       {topicId}
-      <div className="flex justify-center pt-8">
-        <div className="flex flex-col max-w-screen-md">
-          {polls.map((poll) => (
-            <div key={poll.id}>
-              <Link to={`/poll/${poll.id}`} onClick={handlePollClick}>
-                {poll.title}
-              </Link>
-            </div>
-          ))}
-        </div>
+      <div className="overflow-x-auto">
+        <table className="table w-full">
+          <thead>
+            <tr>
+              <th>POLL</th>
+              <th>Created By</th>
+              <th>Active</th>
+            </tr>
+          </thead>
+          <tbody>
+            {polls.map((poll) => (
+              <tr key={poll.id} className="hover">
+                <th>
+                  <Link to={`/poll/${poll.id}`}>{poll.title}</Link>
+                </th>
+                <td>{poll.created_by_user}</td>
+                <td>{poll.is_active ? "Yes" : "No"}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
       <div className="flex justify-center pt-8">
-        <label htmlFor="my-modal" className="btn ">
+        <label htmlFor="my-modal" className="btn btn-outline">
           Create New Poll
         </label>
         <input type="checkbox" id="my-modal" className="modal-toggle " />
@@ -164,12 +200,15 @@ const Polls = () => {
               Allow Multiple:
             </h3>
             <div className="flex justify-center pt-4">
-              <input
-                type="checkbox"
-                id="allow-multiple"
-                checked={newPollAllowMultiple}
-                onChange={(e) => setNewPollAllowMultiple(e.target.checked)}
-              />
+              <label className="swap">
+                <input
+                  type="checkbox"
+                  checked={newPollAllowMultiple}
+                  onChange={(e) => setNewPollAllowMultiple(e.target.checked)}
+                />
+                <div className="swap-on">YES</div>
+                <div className="swap-off">NO</div>
+              </label>
             </div>
             <h3 className="font-bold text-2xl flex justify-center pt-4">
               Options(split by comma):

@@ -71,25 +71,9 @@ const Topics = () => {
 
   return (
     <div className="m-4">
-      <div className="flex justify-center pt-8">
-        <div className="flex flex-wrap max-w-screen-md">
-          {topics.map((topic, index) => (
-            <div
-              key={topic.id}
-              className={`p-4 ${index % 2 !== 0 ? "pl-10" : ""}`}
-            >
-              <button className={`btn ${getRandomColorClass()} `}>
-                <Link to={`/topic/${topic.id}`} onClick={handleTopicClick}>
-                  {topic.topic_name}
-                </Link>
-              </button>
-            </div>
-          ))}
-        </div>
-      </div>
       {isAuthenticated && user && (
         <div className="flex justify-center">
-          <label htmlFor="my-modal" className="btn ">
+          <label htmlFor="my-modal" className="btn btn-outline">
             Create Topic
           </label>
           <input type="checkbox" id="my-modal" className="modal-toggle " />
@@ -124,6 +108,22 @@ const Topics = () => {
           </div>
         </div>
       )}
+      <div className="flex justify-center pt-8">
+        <div className="flex flex-wrap max-w-screen-md">
+          {topics.map((topic, index) => (
+            <div
+              key={topic.id}
+              className={`p-4 ${index % 2 !== 0 ? "pl-10" : ""}`}
+            >
+              <button className={`btn ${getRandomColorClass()} `}>
+                <Link to={`/topic/${topic.id}`} onClick={handleTopicClick}>
+                  {topic.topic_name}
+                </Link>
+              </button>
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 };

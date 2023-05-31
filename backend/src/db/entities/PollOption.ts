@@ -21,5 +21,5 @@ export class PollOption extends BaseEntity {
   users = new Collection<User>(this);
 
   @Property()
-  voted_num!: number;
+  votes!: number;
 }

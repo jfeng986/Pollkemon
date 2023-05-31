@@ -3,32 +3,45 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { Link, useLocation } from "react-router-dom";
 
-// Define the type for the topic
 type Topic = {
   id: number;
   created_at: string;
   updated_at: string;
   topic_name: string;
+  votes: number;
 };
 
 const Topics = () => {
   const { user, isAuthenticated, loginWithRedirect } = useAuth0();
   const [newTopic, setNewTopic] = useState("");
   const [topics, setTopics] = useState<Topic[]>([]);
+  const [sortOrder, setSortOrder] = useState<"newest" | "popular">("newest");
   const location = useLocation();
 
   useEffect(() => {
     const getTopics = async () => {
       try {
         const response = await axios.get("http://localhost:8081/topics");
-        setTopics(response.data);
-        console.log(response.data);
+        let sortedTopics;
+        if (sortOrder === "newest") {
+          sortedTopics = response.data.sort((a: Topic, b: Topic) => {
+            return (
+              new Date(b.updated_at).getTime() -
+              new Date(a.updated_at).getTime()
+            );
+          });
+        } else {
+          sortedTopics = response.data.sort(
+            (a: Topic, b: Topic) => b.votes - a.votes
+          );
+        }
+        setTopics(sortedTopics);
       } catch (error) {
         console.error(error);
       }
     };
     getTopics();
-  }, [location]);
+  }, [location, sortOrder]);
 
   const getRandomColorClass = () => {
     const colors = [
@@ -84,7 +97,20 @@ const Topics = () => {
   return (
     <div className="m-4">
       {isAuthenticated && user && (
-        <div className="flex justify-center">
+        <div className="flex justify-between">
+          <div className="flex flex-col font-bold">
+            <div>Sorted by </div>
+            <label className="swap swap-rotate">
+              <input
+                type="checkbox"
+                onChange={(e) =>
+                  setSortOrder(e.target.checked ? "popular" : "newest")
+                }
+              />
+              <div className="swap-on">Popularity</div>
+              <div className="swap-off">Newest</div>
+            </label>
+          </div>
           <label htmlFor="my-modal" className="btn btn-outline">
             Create Topic
           </label>

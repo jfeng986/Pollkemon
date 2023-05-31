@@ -4,6 +4,7 @@ import { ICreatePollsBody } from "../types.js";
 import { PollOption } from "../db/entities/PollOption.js";
 import { ICreatePollOptionsBody } from "../types.js";
 import { User } from "../db/entities/User.js";
+import { Topic } from "../db/entities/Topic.js";
 
 export function PollRoutesInit(app: FastifyInstance) {
   // CRUD
@@ -38,7 +39,7 @@ export function PollRoutesInit(app: FastifyInstance) {
         duration,
         allow_multiple,
         is_active: true,
-        total_voted: 0,
+        votes: 0,
       });
       console.log(newPoll);
       console.log(options);
@@ -46,7 +47,7 @@ export function PollRoutesInit(app: FastifyInstance) {
         await req.em.create(PollOption, {
           option_name: option,
           Poll: newPoll,
-          voted_num: 0,
+          votes: 0,
         });
       }
 
@@ -173,9 +174,14 @@ export function PollRoutesInit(app: FastifyInstance) {
 
       try {
         const theOption = await req.em.findOne(PollOption, { id: option_id });
-        theOption.voted_num += 1;
+        theOption.votes += 1;
         const thePoll = await req.em.findOne(Poll, { id: poll_id });
-        thePoll.total_voted += 1;
+        thePoll.votes += 1;
+
+        //get topic id
+        const theTopic = await req.em.findOne(Topic, { id: thePoll.topic.id });
+        theTopic.votes += 1;
+
         await req.em.flush();
         console.log(theOption);
         reply.send(theOption);

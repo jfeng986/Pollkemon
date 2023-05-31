@@ -19,8 +19,9 @@ type Poll = {
   is_active: boolean;
   allow_multiple: boolean;
   created_by_user: string;
-  total_voted: number;
+  votes: number;
   created_at: string;
+  updated_at: string;
 };
 
 const Polls = () => {
@@ -43,14 +44,22 @@ const Polls = () => {
         const response = await axios.post(`http://localhost:8081/topic/polls`, {
           topic_id: topicId,
         });
-        console.log("response.data", response.data);
         const pollsWithUserNames = await Promise.all(
           response.data.map(async (poll: Poll) => {
             const created_by_user = await getUserName(poll.created_by);
             return { ...poll, created_by_user };
           })
         );
-        setPolls(pollsWithUserNames);
+        console.log("pollsWithUserNames", pollsWithUserNames);
+        const pollsWithUserNames_SortedByUpdated = pollsWithUserNames.sort(
+          (a: Poll, b: Poll) => {
+            return (
+              new Date(b.updated_at).getTime() -
+              new Date(a.updated_at).getTime()
+            );
+          }
+        );
+        setPolls(pollsWithUserNames_SortedByUpdated);
       } catch (error) {
         console.error(error);
       }
@@ -93,7 +102,7 @@ const Polls = () => {
       return;
     }
     try {
-      const response = await axios.post("http://localhost:8081/polls", {
+      await axios.post("http://localhost:8081/polls", {
         title: newPollName,
         description: newPollDescription,
         topic: topicId,
@@ -115,7 +124,7 @@ const Polls = () => {
     loginWithRedirect();
     return null;
   }
-  //Description: {poll.description}
+
   return (
     <div>
       <h2>Polls for This Topic</h2>
@@ -154,7 +163,7 @@ const Polls = () => {
                         year: "numeric",
                       })}
                     </li>
-                    <li>Popularity: {poll.total_voted}</li>
+                    <li>Popularity: {poll.votes}</li>
                     <li>Active: {poll.is_active ? "Yes" : "No"}</li>
                     <li>
                       Allow Multiple: {poll.allow_multiple ? "Yes" : "No"}

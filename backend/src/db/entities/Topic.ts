@@ -5,4 +5,7 @@ import { BaseEntity } from "./BaseEntity.js";
 export class Topic extends BaseEntity {
   @Property()
   topic_name!: string;
+
+  @Property()
+  votes!: number;
 }

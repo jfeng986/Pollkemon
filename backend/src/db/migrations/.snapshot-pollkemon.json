@@ -43,6 +43,15 @@
           "primary": false,
           "nullable": false,
           "mappedType": "string"
+        },
+        "votes": {
+          "name": "votes",
+          "type": "int",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "integer"
         }
       },
       "name": "topics",
@@ -248,8 +257,8 @@
           "nullable": false,
           "mappedType": "boolean"
         },
-        "total_voted": {
-          "name": "total_voted",
+        "votes": {
+          "name": "votes",
           "type": "int",
           "unsigned": false,
           "autoincrement": false,
@@ -348,8 +357,8 @@
           "nullable": false,
           "mappedType": "integer"
         },
-        "voted_num": {
-          "name": "voted_num",
+        "votes": {
+          "name": "votes",
           "type": "int",
           "unsigned": false,
           "autoincrement": false,

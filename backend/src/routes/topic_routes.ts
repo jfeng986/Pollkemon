@@ -63,6 +63,7 @@ export function TopicRoutesInit(app: FastifyInstance) {
     try {
       const theTopics = await req.em.find(Topic, {});
       const theTopicsArray = Array.from(theTopics);
+
       reply.send(theTopicsArray);
     } catch (err) {
       console.error(err);

@@ -140,7 +140,7 @@ const Polls = () => {
         <div className="font-bold text-2xl ">Polls for {topicName}</div>
         <div className="flex text-sm font-semibold py-4 px-4 border border-black rounded-xl p-2">
           <div className="">Sorted by: </div>
-          <label className="swap swap-rotate">
+          <label className="swap swap-rotate px-1">
             <input
               type="checkbox"
               onChange={(e) =>
@@ -219,7 +219,7 @@ const Polls = () => {
               <input
                 type="text"
                 placeholder="Type here"
-                className="input w-full max-w-xs "
+                className="input w-full max-w-xs input-bordered "
                 value={newPollName}
                 onChange={(e) => setNewPollName(e.target.value)}
               />
@@ -231,7 +231,7 @@ const Polls = () => {
               <input
                 type="text"
                 placeholder="Type here"
-                className="input w-full max-w-xs"
+                className="input w-full max-w-xs input-bordered "
                 value={newPollDescription}
                 onChange={(e) => setNewPollDescription(e.target.value)}
               />
@@ -243,7 +243,6 @@ const Polls = () => {
               <p className="pr-2 font-bold">Hour: </p>
               <input
                 type="number"
-                id="duration"
                 className="w-1/2"
                 value={newPollDurationHour}
                 onChange={(e) => setNewPollDurationHour(Number(e.target.value))}
@@ -253,8 +252,7 @@ const Polls = () => {
               <p className="pr-2 font-bold">Minute: </p>
               <input
                 type="number"
-                id="duration"
-                className="w-1/2"
+                className="w-1/2 "
                 value={newPollDurationMinute}
                 onChange={(e) =>
                   setNewPollDurationMinute(Number(e.target.value))
@@ -282,7 +280,7 @@ const Polls = () => {
               <input
                 type="text"
                 id="options"
-                className="input w-full max-w-xs"
+                className="input w-full max-w-xs input-bordered "
                 value={newPollOptions}
                 onChange={(e) => setNewPollOptions(e.target.value.split(","))}
               />

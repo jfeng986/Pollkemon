@@ -107,11 +107,11 @@ const Topics = () => {
               <h3 className="font-bold text-2xl flex justify-center">
                 Topic Name:
               </h3>
-              <div className="flex justify-center">
+              <div className="flex justify-center px-2 pt-2">
                 <input
                   type="text"
                   placeholder="Type here"
-                  className="input w-full max-w-xs "
+                  className="input w-full max-w-xs input-bordered "
                   value={newTopic}
                   onChange={(e) => setNewTopic(e.target.value)}
                 />
@@ -133,7 +133,7 @@ const Topics = () => {
           </div>
           <div className="flex text-sm font-semibold py-4 px-4 border border-black rounded-xl p-2">
             <div className="">Sorted by: </div>
-            <label className="swap swap-rotate">
+            <label className="swap swap-rotate px-1">
               <input
                 type="checkbox"
                 onChange={(e) =>

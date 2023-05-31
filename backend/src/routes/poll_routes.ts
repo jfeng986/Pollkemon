@@ -64,9 +64,11 @@ export function PollRoutesInit(app: FastifyInstance) {
   app.post<{ Body: { poll_id: number } }>("/poll", async (req, reply) => {
     const { poll_id } = req.body;
     try {
+      const thePoll = await req.em.findOne(Poll, { id: poll_id });
       const theOptions = await req.em.find(PollOption, { Poll: poll_id });
       const response = {
         options: theOptions,
+        poll: thePoll,
       };
       console.log(response);
       reply.send(response);

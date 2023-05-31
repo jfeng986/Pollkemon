@@ -10,6 +10,7 @@ export function TopicRoutesInit(app: FastifyInstance) {
     try {
       const newTopic = await req.em.create(Topic, {
         topic_name,
+        votes: 0,
       });
       await req.em.flush();
       console.log("Created new topic:", newTopic);

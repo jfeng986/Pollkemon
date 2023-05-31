@@ -15,7 +15,7 @@ const Topics = () => {
   const { user, isAuthenticated, loginWithRedirect } = useAuth0();
   const [newTopic, setNewTopic] = useState("");
   const [topics, setTopics] = useState<Topic[]>([]);
-  const [sortOrder, setSortOrder] = useState<"newest" | "popular">("newest");
+  const [sortOrder, setSortOrder] = useState<"newest" | "popularity">("newest");
   const location = useLocation();
 
   useEffect(() => {
@@ -97,24 +97,11 @@ const Topics = () => {
   return (
     <div className="m-4">
       {isAuthenticated && user && (
-        <div className="flex justify-between">
-          <div className="flex flex-col font-bold">
-            <div>Sorted by </div>
-            <label className="swap swap-rotate">
-              <input
-                type="checkbox"
-                onChange={(e) =>
-                  setSortOrder(e.target.checked ? "popular" : "newest")
-                }
-              />
-              <div className="swap-on">Popularity</div>
-              <div className="swap-off">Newest</div>
-            </label>
-          </div>
+        <div className="flex justify-between p-4 text-center items-center">
           <label htmlFor="my-modal" className="btn btn-outline">
             Create Topic
           </label>
-          <input type="checkbox" id="my-modal" className="modal-toggle " />
+          <input type="checkbox" id="my-modal" className="modal-toggle" />
           <div className="modal">
             <div className="modal-box">
               <h3 className="font-bold text-2xl flex justify-center">
@@ -144,6 +131,19 @@ const Topics = () => {
               </div>
             </div>
           </div>
+          <div className="flex text-sm font-semibold py-4 px-4 border border-black rounded-xl p-2">
+            <div className="">Sorted by: </div>
+            <label className="swap swap-rotate">
+              <input
+                type="checkbox"
+                onChange={(e) =>
+                  setSortOrder(e.target.checked ? "popularity" : "newest")
+                }
+              />
+              <div className="swap-on">Popularity</div>
+              <div className="swap-off">Newest</div>
+            </label>
+          </div>
         </div>
       )}
       <div className="flex justify-center pt-8">
@@ -153,7 +153,7 @@ const Topics = () => {
               key={topic.id}
               className={`p-4 ${index % 2 !== 0 ? "pl-10" : ""}`}
             >
-              <Link to={`/topic/${topic.id}`}>
+              <Link to={`/topic/${topic.topic_name}/${topic.id}`}>
                 <button
                   className={`btn ${getRandomColorClass()} `}
                   onClick={handleTopicClick}

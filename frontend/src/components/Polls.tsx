@@ -5,7 +5,8 @@ import { useAuth0 } from "@auth0/auth0-react";
 import axios from "axios";
 
 type RouteParams = {
-  topicId: string;
+  topicID: string;
+  topicName: string;
 };
 
 type Poll = {
@@ -27,7 +28,7 @@ type Poll = {
 const Polls = () => {
   const { user, isAuthenticated, loginWithRedirect } = useAuth0();
 
-  const { topicId } = useParams<RouteParams>();
+  const { topicID, topicName } = useParams<RouteParams>();
   const [polls, setPolls] = useState<Poll[]>([]);
   const [newPollName, setNewPollName] = useState("");
   const [newPollDescription, setNewPollDescription] = useState("");
@@ -37,12 +38,13 @@ const Polls = () => {
   const [isPermanent, setIsPermanent] = useState(false);
   const [newPollAllowMultiple, setNewPollAllowMultiple] = useState(false);
   const [newPollOptions, setNewPollOptions] = useState<string[]>([]);
+  const [sortOrder, setSortOrder] = useState<"newest" | "popularity">("newest");
 
   useEffect(() => {
     const getPolls = async () => {
       try {
         const response = await axios.post(`http://localhost:8081/topic/polls`, {
-          topic_id: topicId,
+          topic_id: topicID,
         });
         const pollsWithUserNames = await Promise.all(
           response.data.map(async (poll: Poll) => {
@@ -50,22 +52,29 @@ const Polls = () => {
             return { ...poll, created_by_user };
           })
         );
-        console.log("pollsWithUserNames", pollsWithUserNames);
-        const pollsWithUserNames_SortedByUpdated = pollsWithUserNames.sort(
-          (a: Poll, b: Poll) => {
-            return (
+
+        let sortedPolls;
+
+        if (sortOrder === "newest") {
+          sortedPolls = pollsWithUserNames.sort(
+            (a: Poll, b: Poll) =>
               new Date(b.updated_at).getTime() -
               new Date(a.updated_at).getTime()
-            );
-          }
-        );
-        setPolls(pollsWithUserNames_SortedByUpdated);
+          );
+        } else {
+          sortedPolls = pollsWithUserNames.sort(
+            (a: Poll, b: Poll) => b.votes - a.votes
+          );
+        }
+
+        setPolls(sortedPolls);
       } catch (error) {
         console.error(error);
       }
     };
+
     getPolls();
-  }, []);
+  }, [sortOrder]);
 
   const getUserName = async (id: number) => {
     try {
@@ -105,7 +114,7 @@ const Polls = () => {
       await axios.post("http://localhost:8081/polls", {
         title: newPollName,
         description: newPollDescription,
-        topic: topicId,
+        topic: topicID,
         created_by: user?.email,
         is_permanent: isPermanent,
         duration: newPollDuration,
@@ -127,8 +136,23 @@ const Polls = () => {
 
   return (
     <div>
-      <h2>Polls for This Topic</h2>
-      {topicId}
+      <div className="flex justify-between p-8 text-center items-center">
+        <div className="font-bold text-2xl ">Polls for {topicName}</div>
+        <div className="flex text-sm font-semibold py-4 px-4 border border-black rounded-xl p-2">
+          <div className="">Sorted by: </div>
+          <label className="swap swap-rotate">
+            <input
+              type="checkbox"
+              onChange={(e) =>
+                setSortOrder(e.target.checked ? "popularity" : "newest")
+              }
+            />
+            <div className="swap-on">Popularity</div>
+            <div className="swap-off">Newest</div>
+          </label>
+        </div>
+      </div>
+
       <div>
         <table className="table w-full">
           <thead>
@@ -144,8 +168,11 @@ const Polls = () => {
                 <th>
                   <Link to={`/poll/${poll.id}`}>{poll.title}</Link>
                 </th>
-                <td>{poll.description}</td>
-
+                <td>
+                  {poll.description
+                    ? poll.description
+                    : "No description available"}
+                </td>
                 <td className="dropdown dropdown-left w-full">
                   <label tabIndex={0} className="btn m-1">
                     More Info

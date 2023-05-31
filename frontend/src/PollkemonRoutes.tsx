@@ -40,8 +40,8 @@ export default function AppRoutes() {
       <div></div>
       <Routes>
         <Route path="/" element={<Topics />} />
-        <Route path="/topic/:topicId" element={<Polls />} />
-        <Route path="/poll/:pollId" element={<PollPage />} />
+        <Route path="/topic/:topicName/:topicID" element={<Polls />} />
+        <Route path="/poll/:pollID" element={<PollPage />} />
       </Routes>
     </div>
   );

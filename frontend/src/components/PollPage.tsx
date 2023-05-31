@@ -4,7 +4,7 @@ import { useAuth0 } from "@auth0/auth0-react";
 import axios from "axios";
 
 type RouteParams = {
-  pollId: string;
+  pollID: string;
 };
 
 type PollOption = {
@@ -17,16 +17,16 @@ type PollOption = {
 };
 
 const PollPage = () => {
-  const { pollId } = useParams<RouteParams>();
+  const { pollID } = useParams<RouteParams>();
   const [pollOptions, setPollOptions] = useState<PollOption[]>([]);
   const { user, isAuthenticated, loginWithRedirect } = useAuth0();
 
   useEffect(() => {
     const getPollOptions = async () => {
       try {
-        console.log("pollId", pollId);
+        console.log("pollID", pollID);
         const response = await axios.post(`http://localhost:8081/poll`, {
-          poll_id: pollId,
+          poll_id: pollID,
         });
         console.log("response.data", response.data);
         const sortedOptions = response.data.options.sort(
@@ -45,7 +45,8 @@ const PollPage = () => {
     console.log("onPollOptionClick:", option.id);
     console.log("email:", user?.email);
     await axios.post(`http://localhost:8081/poll/vote`, {
-      poll_id: pollId,
+      //user_email: user?.email,
+      poll_id: pollID,
       option_id: option.id,
     });
     setPollOptions(

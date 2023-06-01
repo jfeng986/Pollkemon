@@ -136,10 +136,10 @@ const Polls = () => {
 
   return (
     <div>
-      <div className="flex justify-between p-8 text-center items-center">
-        <div className="font-bold text-2xl ">Polls for {topicName}</div>
+      <div className="flex justify-between p-8 text-center items-center opacity-80">
+        <div className="font-bold text-3xl">Polls for {topicName}</div>
         <div className="flex text-sm font-semibold py-4 px-4 border border-black rounded-xl p-2">
-          <div className="">Sorted by: </div>
+          <div>Sorted by: </div>
           <label className="swap swap-rotate px-1">
             <input
               type="checkbox"
@@ -154,17 +154,17 @@ const Polls = () => {
       </div>
 
       <div>
-        <table className="table w-full">
+        <table className="table w-full  opacity-80">
           <thead>
-            <tr className="">
-              <th className="">POLL</th>
-              <th className="">Description</th>
+            <tr>
+              <th className="text-2xl">Polls</th>
+              <th className="text-2xl">Descriptions</th>
               <th className=""></th>
             </tr>
           </thead>
           <tbody>
             {polls.map((poll) => (
-              <tr key={poll.id} className="hover">
+              <tr key={poll.id} className="hover text-xl">
                 <th>
                   <Link to={`/poll/${poll.id}`}>{poll.title}</Link>
                 </th>

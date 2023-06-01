@@ -97,7 +97,7 @@ const Topics = () => {
   return (
     <div className="m-4">
       {isAuthenticated && user && (
-        <div className="flex justify-between p-4 text-center items-center">
+        <div className="flex justify-between p-4 text-center items-center opacity-80">
           <label htmlFor="my-modal" className="btn btn-outline">
             Create Topic
           </label>

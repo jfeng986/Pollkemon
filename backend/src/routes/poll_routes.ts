@@ -50,9 +50,11 @@ export function PollRoutesInit(app: FastifyInstance) {
           votes: 0,
         });
       }
-
-      await req.em.flush();
       console.log("Created new poll:", newPoll);
+      const theTopic = await req.em.findOne(Topic, { id: topic });
+      theTopic.updated_at = new Date();
+      await req.em.flush();
+
       return reply.send(newPoll);
     } catch (err) {
       console.log("Failed to find user", err.message);
@@ -66,6 +68,17 @@ export function PollRoutesInit(app: FastifyInstance) {
     try {
       const thePoll = await req.em.findOne(Poll, { id: poll_id });
       const theOptions = await req.em.find(PollOption, { Poll: poll_id });
+      //check poll's date and time is expired or not
+      const now = new Date();
+      const pollDate = new Date(thePoll.created_at);
+      const pollDuration = thePoll.duration; //in minutes
+      if (!thePoll.is_permanent) {
+        const pollExpired = new Date(pollDate.getTime() + pollDuration * 60000);
+        if (now > pollExpired) {
+          thePoll.is_active = false;
+          await req.em.flush();
+        }
+      }
       const response = {
         options: theOptions,
         poll: thePoll,

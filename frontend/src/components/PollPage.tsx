@@ -34,6 +34,9 @@ const PollPage = () => {
   const [poll, setPoll] = useState<Poll>();
   const [pollOptions, setPollOptions] = useState<PollOption[]>([]);
   const [checkedOptions, setCheckedOptions] = useState<number[]>([]);
+  const [remainHours, setRemainHours] = useState(0);
+  const [remainMinutes, setRemainMinutes] = useState(0);
+  const [remainSeconds, setRemainSeconds] = useState(0);
   const { user, isAuthenticated, loginWithRedirect } = useAuth0();
 
   const getRandomColorClass = () => {
@@ -60,6 +63,34 @@ const PollPage = () => {
     const randomIndex = Math.floor(Math.random() * colors.length);
     return colors[randomIndex];
   };
+
+  useEffect(() => {
+    if (poll && poll.is_active) {
+      if (poll.is_permanent || poll.duration === -1) {
+        console.log("permanent");
+        return;
+      }
+      const endTime = new Date(poll.created_at);
+      endTime.setMinutes(endTime.getMinutes() + poll.duration);
+      const remainTime = endTime.getTime() - new Date().getTime();
+      setRemainHours(Math.floor((remainTime / (1000 * 60 * 60)) % 24));
+      setRemainMinutes(Math.floor((remainTime / (1000 * 60)) % 60));
+      setRemainSeconds(Math.floor((remainTime / 1000) % 60));
+      const interval = setInterval(() => {
+        const now = new Date().getTime();
+        const timeLeft = endTime.getTime() - now;
+        if (timeLeft < 0) {
+          clearInterval(interval);
+          window.location.reload();
+        } else {
+          setRemainHours(Math.floor((timeLeft / (1000 * 60 * 60)) % 24));
+          setRemainMinutes(Math.floor((timeLeft / (1000 * 60)) % 60));
+          setRemainSeconds(Math.floor((timeLeft / 1000) % 60));
+        }
+      }, 1000);
+      return () => clearInterval(interval);
+    }
+  }, [poll]);
 
   const handleCheckboxChange = (optionId: number, isChecked: boolean) => {
     if (isChecked) {
@@ -96,7 +127,7 @@ const PollPage = () => {
           .sort((a: PollOption, b: PollOption) => a.id - b.id)
           .map((option: PollOption) => ({
             ...option,
-            colorClass: getRandomColorClass(), // Assign a color class to each option
+            colorClass: getRandomColorClass(),
           }));
         setPoll(response.data.poll);
         setPollOptions(sortedOptions);
@@ -143,13 +174,38 @@ const PollPage = () => {
 
   return (
     <div>
-      <h1 className="p-4 text-2xl">
-        {poll?.title}
-        <span> #{pollID}</span>
+      <h1 className="p-4 text-2xl flex justify-between">
+        {poll?.title} #{pollID}
+        <p className={`kbd kbd-lg px-4 py-2 ${poll?.is_active}`}>
+          {poll?.is_active ? "🌻Open" : "🥀Closed"}
+        </p>
       </h1>
       <div className="p-2 px-4">
         <p>
-          Description: <span>{poll?.description}</span>
+          Description:{" "}
+          <span>
+            {poll?.description ? poll.description : "No description available"}
+          </span>
+        </p>
+        <p> Created at: {poll?.created_at}</p>
+
+        <p>
+          {" "}
+          Remaining Time:{" "}
+          <span className="countdown font-mono text-2xl">
+            <span style={{ "--value": remainHours } as React.CSSProperties}>
+              {remainHours}
+            </span>
+            h
+            <span style={{ "--value": remainMinutes } as React.CSSProperties}>
+              {remainMinutes}
+            </span>
+            m
+            <span style={{ "--value": remainSeconds } as React.CSSProperties}>
+              {remainSeconds}
+            </span>
+            s
+          </span>
         </p>
       </div>
 
@@ -209,6 +265,7 @@ const PollPage = () => {
                       onChange={(e) =>
                         handleCheckboxChange(pollOption.id, e.target.checked)
                       }
+                      disabled={!poll?.is_active}
                     />
                   </label>
                 </td>
@@ -216,8 +273,12 @@ const PollPage = () => {
             ))}
           </tbody>
         </table>
-        <div className="flex justify-center">
-          <button className="btn btn-ghost text-2xl" onClick={handleVoteClick}>
+        <div className="flex justify-center p-4">
+          <button
+            className="btn btn-ghost text-2xl"
+            onClick={handleVoteClick}
+            disabled={!poll?.is_active}
+          >
             Vote
           </button>
         </div>

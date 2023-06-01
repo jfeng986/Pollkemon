@@ -191,7 +191,7 @@ const Polls = () => {
                       })}
                     </li>
                     <li>Popularity: {poll.votes}</li>
-                    <li>Active: {poll.is_active ? "Yes" : "No"}</li>
+                    <li>Open: {poll.is_active ? "Yes" : "No"}</li>
                     <li>
                       Allow Multiple: {poll.allow_multiple ? "Yes" : "No"}
                     </li>

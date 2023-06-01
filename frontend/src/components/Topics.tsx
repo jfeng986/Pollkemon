@@ -36,6 +36,7 @@ const Topics = () => {
           );
         }
         setTopics(sortedTopics);
+        console.log("topics", topics);
       } catch (error) {
         console.error(error);
       }
@@ -97,8 +98,8 @@ const Topics = () => {
   return (
     <div className="m-4">
       {isAuthenticated && user && (
-        <div className="flex justify-between p-4 text-center items-center opacity-80">
-          <label htmlFor="my-modal" className="btn btn-outline">
+        <div className="flex justify-between p-4 text-center items-center ">
+          <label htmlFor="my-modal" className="btn btn-outline opacity-80">
             Create Topic
           </label>
           <input type="checkbox" id="my-modal" className="modal-toggle" />
@@ -131,7 +132,7 @@ const Topics = () => {
               </div>
             </div>
           </div>
-          <div className="flex text-sm font-semibold py-4 px-4 border border-black rounded-xl p-2">
+          <div className="flex text-sm font-semibold py-4 px-4 border border-black rounded-xl p-2 opacity-80">
             <div className="">Sorted by: </div>
             <label className="swap swap-rotate px-1">
               <input

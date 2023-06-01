@@ -94,7 +94,11 @@ const PollPage = () => {
 
   const handleCheckboxChange = (optionId: number, isChecked: boolean) => {
     if (isChecked) {
-      setCheckedOptions([...checkedOptions, optionId]);
+      if (poll?.allow_multiple) {
+        setCheckedOptions([...checkedOptions, optionId]);
+      } else {
+        setCheckedOptions([optionId]);
+      }
     } else {
       setCheckedOptions(checkedOptions.filter((id) => id !== optionId));
     }
@@ -174,7 +178,7 @@ const PollPage = () => {
 
   return (
     <div>
-      <h1 className="p-4 text-2xl flex justify-between">
+      <h1 className="py-4 px-8 text-2xl flex justify-between">
         {poll?.title} #{pollID}
         <p className={`kbd kbd-lg px-4 py-2 ${poll?.is_active}`}>
           {poll?.is_active ? "🌻Open" : "🥀Closed"}
@@ -262,6 +266,7 @@ const PollPage = () => {
                     <input
                       type="checkbox"
                       className="checkbox"
+                      checked={checkedOptions.includes(pollOption.id)}
                       onChange={(e) =>
                         handleCheckboxChange(pollOption.id, e.target.checked)
                       }

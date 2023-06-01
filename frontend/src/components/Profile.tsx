@@ -75,7 +75,7 @@ const Profile = () => {
     <div>
       <div className="flex justify-center">
         <div className="p-3">
-          <p>{username}</p>
+          <p>㊔: {username}</p>
         </div>
       </div>
     </div>

@@ -136,9 +136,107 @@ const Polls = () => {
 
   return (
     <div>
-      <div className="flex justify-between p-8 text-center items-center opacity-80">
-        <div className="font-bold text-3xl">Polls for {topicName}</div>
-        <div className="flex text-sm font-semibold py-4 px-4 border border-black rounded-xl p-2">
+      <div className="flex justify-between p-8 text-center items-center">
+        <div className="flex justify-center">
+          <label htmlFor="my-modal" className="btn btn-outline opacity-80">
+            Create New Poll
+          </label>
+          <input type="checkbox" id="my-modal" className="modal-toggle " />
+          <div className="modal">
+            <div className="modal-box">
+              <h3 className="font-bold text-2xl flex justify-center">
+                Poll Name:
+              </h3>
+              <div className="flex justify-center">
+                <input
+                  type="text"
+                  placeholder="Type here"
+                  className="input w-full max-w-xs input-bordered "
+                  value={newPollName}
+                  onChange={(e) => setNewPollName(e.target.value)}
+                />
+              </div>
+              <h3 className="font-bold text-2xl flex justify-center pt-4">
+                Description:
+              </h3>
+              <div className="flex justify-center">
+                <input
+                  type="text"
+                  placeholder="Type here"
+                  className="input w-full max-w-xs input-bordered "
+                  value={newPollDescription}
+                  onChange={(e) => setNewPollDescription(e.target.value)}
+                />
+              </div>
+              <h3 className="font-bold text-2xl flex justify-center pt-4">
+                Duration(remain 0 if permanent):
+              </h3>
+              <div className="flex justify-center p-1">
+                <p className="pr-2 font-bold">Hour: </p>
+                <input
+                  type="number"
+                  className="w-1/2"
+                  value={newPollDurationHour}
+                  onChange={(e) =>
+                    setNewPollDurationHour(Number(e.target.value))
+                  }
+                />
+              </div>
+              <div className="flex justify-center p-1">
+                <p className="pr-2 font-bold">Minute: </p>
+                <input
+                  type="number"
+                  className="w-1/2 "
+                  value={newPollDurationMinute}
+                  onChange={(e) =>
+                    setNewPollDurationMinute(Number(e.target.value))
+                  }
+                />
+              </div>
+              <h3 className="font-bold text-2xl flex justify-center pt-4">
+                Allow Multiple:
+              </h3>
+              <div className="flex justify-center pt-4">
+                <label className="swap">
+                  <input
+                    type="checkbox"
+                    checked={newPollAllowMultiple}
+                    onChange={(e) => setNewPollAllowMultiple(e.target.checked)}
+                  />
+                  <div className="swap-on">YES</div>
+                  <div className="swap-off">NO</div>
+                </label>
+              </div>
+              <h3 className="font-bold text-2xl flex justify-center pt-4">
+                Options(split by comma):
+              </h3>
+              <div className="flex justify-center pt-4">
+                <input
+                  type="text"
+                  id="options"
+                  className="input w-full max-w-xs input-bordered "
+                  value={newPollOptions}
+                  onChange={(e) => setNewPollOptions(e.target.value.split(","))}
+                />
+              </div>
+
+              <div className="modal-action flex justify-center">
+                <label
+                  htmlFor="my-modal"
+                  className="btn btn-success"
+                  onClick={onCreatePollClick}
+                >
+                  create
+                </label>
+                <label htmlFor="my-modal" className="btn btn-error">
+                  cancel
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="font-bold text-3xl">㊑ Polls for {topicName}</div>
+        <div className="flex text-sm font-semibold py-4 px-4 border border-black rounded-xl p-2 opacity-80">
           <div>Sorted by: </div>
           <label className="swap swap-rotate px-1">
             <input
@@ -157,6 +255,7 @@ const Polls = () => {
         <table className="table w-full  opacity-80">
           <thead>
             <tr>
+              <th className=""></th>
               <th className="text-2xl">Polls</th>
               <th className="text-2xl">Descriptions</th>
               <th className=""></th>
@@ -165,6 +264,7 @@ const Polls = () => {
           <tbody>
             {polls.map((poll) => (
               <tr key={poll.id} className="hover text-xl">
+                <th></th>
                 <th>
                   <Link to={`/poll/${poll.id}`}>{poll.title}</Link>
                 </th>
@@ -204,102 +304,6 @@ const Polls = () => {
       </div>
       <div className="flex justify-center">
         {polls.length === 0 ? <p>There is no poll now, create one</p> : null}
-      </div>
-      <div className="flex justify-center pt-8">
-        <label htmlFor="my-modal" className="btn btn-outline">
-          Create New Poll
-        </label>
-        <input type="checkbox" id="my-modal" className="modal-toggle " />
-        <div className="modal">
-          <div className="modal-box">
-            <h3 className="font-bold text-2xl flex justify-center">
-              Poll Name:
-            </h3>
-            <div className="flex justify-center">
-              <input
-                type="text"
-                placeholder="Type here"
-                className="input w-full max-w-xs input-bordered "
-                value={newPollName}
-                onChange={(e) => setNewPollName(e.target.value)}
-              />
-            </div>
-            <h3 className="font-bold text-2xl flex justify-center pt-4">
-              Description:
-            </h3>
-            <div className="flex justify-center">
-              <input
-                type="text"
-                placeholder="Type here"
-                className="input w-full max-w-xs input-bordered "
-                value={newPollDescription}
-                onChange={(e) => setNewPollDescription(e.target.value)}
-              />
-            </div>
-            <h3 className="font-bold text-2xl flex justify-center pt-4">
-              Duration(remain 0 if permanent):
-            </h3>
-            <div className="flex justify-center p-1">
-              <p className="pr-2 font-bold">Hour: </p>
-              <input
-                type="number"
-                className="w-1/2"
-                value={newPollDurationHour}
-                onChange={(e) => setNewPollDurationHour(Number(e.target.value))}
-              />
-            </div>
-            <div className="flex justify-center p-1">
-              <p className="pr-2 font-bold">Minute: </p>
-              <input
-                type="number"
-                className="w-1/2 "
-                value={newPollDurationMinute}
-                onChange={(e) =>
-                  setNewPollDurationMinute(Number(e.target.value))
-                }
-              />
-            </div>
-            <h3 className="font-bold text-2xl flex justify-center pt-4">
-              Allow Multiple:
-            </h3>
-            <div className="flex justify-center pt-4">
-              <label className="swap">
-                <input
-                  type="checkbox"
-                  checked={newPollAllowMultiple}
-                  onChange={(e) => setNewPollAllowMultiple(e.target.checked)}
-                />
-                <div className="swap-on">YES</div>
-                <div className="swap-off">NO</div>
-              </label>
-            </div>
-            <h3 className="font-bold text-2xl flex justify-center pt-4">
-              Options(split by comma):
-            </h3>
-            <div className="flex justify-center pt-4">
-              <input
-                type="text"
-                id="options"
-                className="input w-full max-w-xs input-bordered "
-                value={newPollOptions}
-                onChange={(e) => setNewPollOptions(e.target.value.split(","))}
-              />
-            </div>
-
-            <div className="modal-action flex justify-center">
-              <label
-                htmlFor="my-modal"
-                className="btn btn-success"
-                onClick={onCreatePollClick}
-              >
-                create
-              </label>
-              <label htmlFor="my-modal" className="btn btn-error">
-                cancel
-              </label>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   );

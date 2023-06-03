@@ -37,6 +37,7 @@ const PollPage = () => {
   const [remainHours, setRemainHours] = useState(0);
   const [remainMinutes, setRemainMinutes] = useState(0);
   const [remainSeconds, setRemainSeconds] = useState(0);
+  const [hasVoted, setHasVoted] = useState(false);
   const { user, isAuthenticated, loginWithRedirect } = useAuth0();
 
   const getRandomColorClass = () => {
@@ -66,9 +67,15 @@ const PollPage = () => {
 
   useEffect(() => {
     if (poll && poll.is_active) {
-      if (poll.is_permanent || poll.duration === -1) {
-        console.log("permanent");
-        return;
+      if (poll.is_permanent && poll.is_active) {
+        let runCountDown = true;
+        const interval = setInterval(() => {
+          setRemainHours(runCountDown ? 12 : 99);
+          setRemainMinutes(runCountDown ? 34 : 99);
+          setRemainSeconds(runCountDown ? 56 : 99);
+          runCountDown = !runCountDown;
+        }, 1500);
+        return () => clearInterval(interval);
       }
       const endTime = new Date(poll.created_at);
       endTime.setMinutes(endTime.getMinutes() + poll.duration);
@@ -122,11 +129,10 @@ const PollPage = () => {
   useEffect(() => {
     const getPollOptions = async () => {
       try {
-        console.log("pollID", pollID);
         const response = await axios.post(`http://localhost:8081/poll`, {
           poll_id: pollID,
+          email: user?.email,
         });
-        console.log("response.data", response.data);
         const sortedOptions = response.data.options
           .sort((a: PollOption, b: PollOption) => a.id - b.id)
           .map((option: PollOption) => ({
@@ -135,7 +141,12 @@ const PollPage = () => {
           }));
         setPoll(response.data.poll);
         setPollOptions(sortedOptions);
-        console.log("pollOptions", pollOptions);
+        if (response.data.user) {
+          const user = response.data.user;
+          if (user.voted_polls.map(Number).includes(Number(pollID))) {
+            setHasVoted(true);
+          }
+        }
       } catch (error) {
         console.error(error);
       }
@@ -152,19 +163,19 @@ const PollPage = () => {
       setPoll({ ...poll, votes: totalVotes });
     }
   }, [pollOptions]);
-
   const onPollOptionClick = async (option: PollOption) => {
-    console.log("onPollOptionClick:", option.id);
-    console.log("email:", user?.email);
-    await axios.post(`http://localhost:8081/poll/vote`, {
+    const response = await axios.post(`http://localhost:8081/poll/vote`, {
+      email: user?.email,
       poll_id: pollID,
       option_id: option.id,
     });
+    const updatedOption = response.data;
+    const users = updatedOption.users;
     setPollOptions((prevOptions) =>
       prevOptions
         .map((prevOption) =>
           prevOption.id === option.id
-            ? { ...prevOption, votes: prevOption.votes + 1 }
+            ? { ...prevOption, votes: prevOption.votes + 1, users: users }
             : prevOption
         )
         .sort((a, b) => a.id - b.id)
@@ -178,57 +189,59 @@ const PollPage = () => {
 
   return (
     <div>
-      <h1 className="py-4 px-8 text-2xl flex justify-between">
-        {poll?.title} #{pollID}
-        <p className={`kbd kbd-lg px-4 py-2 ${poll?.is_active}`}>
-          {poll?.is_active ? "🌻Open" : "🥀Closed"}
-        </p>
+      <h1 className="pt-8 px-8 pb-2 text-2xl flex justify-between">
+        <div className="flex items-center font-semibold">
+          ㊠: {poll?.title} #{pollID}
+        </div>
+        <div className="flex flex-col">
+          <div className="kbd kbd-lg px-4">
+            {poll?.is_active ? "🌻Open" : "🥀Closed"}
+          </div>
+          <div className="flex justify-center pt-2">
+            <span className="countdown font-mono text-lg ">
+              <span style={{ "--value": remainHours } as React.CSSProperties}>
+                {remainHours}
+              </span>
+              h
+              <span style={{ "--value": remainMinutes } as React.CSSProperties}>
+                {remainMinutes}
+              </span>
+              m
+              <span style={{ "--value": remainSeconds } as React.CSSProperties}>
+                {remainSeconds}
+              </span>
+              s
+            </span>
+          </div>
+        </div>
       </h1>
-      <div className="p-2 px-4">
-        <p>
-          Description:{" "}
+      <div className="pb-4 px-8">
+        <p className="text-xl">
           <span>
+            Description:{" "}
             {poll?.description ? poll.description : "No description available"}
           </span>
         </p>
-        <p> Created at: {poll?.created_at}</p>
-
         <p>
-          {" "}
-          Remaining Time:{" "}
-          <span className="countdown font-mono text-2xl">
-            <span style={{ "--value": remainHours } as React.CSSProperties}>
-              {remainHours}
-            </span>
-            h
-            <span style={{ "--value": remainMinutes } as React.CSSProperties}>
-              {remainMinutes}
-            </span>
-            m
-            <span style={{ "--value": remainSeconds } as React.CSSProperties}>
-              {remainSeconds}
-            </span>
-            s
-          </span>
+          {poll?.allow_multiple ? "Multiple Selection" : "Single Selection"}
         </p>
       </div>
 
       <div className="overflow-x-auto w-full">
         <table className="table w-full">
           <thead>
-            <tr className="align-cenetr">
+            <tr className="align-cenetr ">
               <th></th>
-              <th>Options</th>
-              <th>Votes</th>
-              <th>Percentage</th>
-              <th></th>
+              <th className="text-base">Options</th>
+              <th className="text-base">Votes</th>
+              <th className="text-base">Percentage</th>
               <th></th>
             </tr>
           </thead>
           <tbody>
             {pollOptions.map((pollOption, index) => (
               <tr key={pollOption.id} className="hover">
-                <td className="">{String.fromCharCode(97 + index)}</td>
+                <td className="">{String.fromCharCode(65 + index)}</td>
                 <td>
                   <div className="flex items-center space-x-3">
                     <div>
@@ -259,8 +272,6 @@ const PollPage = () => {
                     %
                   </div>
                 </td>
-                <td>Detail</td>
-
                 <td>
                   <label>
                     <input
@@ -270,7 +281,7 @@ const PollPage = () => {
                       onChange={(e) =>
                         handleCheckboxChange(pollOption.id, e.target.checked)
                       }
-                      disabled={!poll?.is_active}
+                      disabled={!poll?.is_active || hasVoted}
                     />
                   </label>
                 </td>
@@ -282,9 +293,9 @@ const PollPage = () => {
           <button
             className="btn btn-ghost text-2xl"
             onClick={handleVoteClick}
-            disabled={!poll?.is_active}
+            disabled={!poll?.is_active || hasVoted}
           >
-            Vote
+            {hasVoted ? "You Have Voted" : "Vote"}
           </button>
         </div>
       </div>

@@ -41,10 +41,8 @@ export function UserRoutesInit(app: FastifyInstance) {
   //search for a user by email
   app.post<{ Body: { email } }>("/users/search", async (req, reply) => {
     const { email } = req.body;
-    console.log(req.body);
     try {
       const theUser = await req.em.findOne(User, { email });
-      console.log(theUser);
       reply.send(theUser);
     } catch (err) {
       console.error(err);
@@ -55,10 +53,8 @@ export function UserRoutesInit(app: FastifyInstance) {
   //search for a user by id
   app.post<{ Body: { id } }>("/users/searchid", async (req, reply) => {
     const { id } = req.body;
-    console.log(req.body);
     try {
       const theUser = await req.em.findOne(User, { id });
-      console.log(theUser);
       reply.send(theUser);
     } catch (err) {
       console.error(err);
@@ -72,7 +68,6 @@ export function UserRoutesInit(app: FastifyInstance) {
     const userToChange = await req.em.findOne(User, { email });
     userToChange.username = username;
     await req.em.flush();
-    console.log(userToChange);
     reply.send(userToChange);
   });
 
@@ -82,7 +77,6 @@ export function UserRoutesInit(app: FastifyInstance) {
     try {
       const theUser = await req.em.findOne(User, { email });
       await req.em.remove(theUser).flush();
-      console.log(theUser);
       reply.send(theUser);
     } catch (err) {
       console.error(err);
@@ -101,10 +95,9 @@ export function UserRoutesInit(app: FastifyInstance) {
         id: poll_option_id,
       });
       theUser.voted_polls.push(poll_option_id);
-      thePoll.total_voted += 1;
+      thePoll.votes += 1;
       thePollOption.users.add(theUser);
       await req.em.flush();
-      console.log(theUser);
       reply.send(theUser);
     }
   );

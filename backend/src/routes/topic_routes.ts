@@ -24,10 +24,8 @@ export function TopicRoutesInit(app: FastifyInstance) {
   //R
   app.search("/topics", async (req, reply) => {
     const { topic_id } = req.body;
-    console.log(req.body);
     try {
       const theTopic = await req.em.findOne(Topic, { topic_id });
-      console.log(theTopic);
       reply.send(theTopic);
     } catch (err) {
       console.error(err);
@@ -41,7 +39,6 @@ export function TopicRoutesInit(app: FastifyInstance) {
     const topicToChange = await req.em.findOne(Topic, { id: topic_id });
     topicToChange.topic_name = topic_name;
     await req.em.flush();
-    console.log(topicToChange);
     reply.send(topicToChange);
   });
 
@@ -51,7 +48,6 @@ export function TopicRoutesInit(app: FastifyInstance) {
     try {
       const theTopic = await req.em.findOne(Topic, { id: topic_id });
       await req.em.remove(theTopic).flush();
-      console.log(theTopic);
       reply.send(theTopic);
     } catch (err) {
       console.error(err);

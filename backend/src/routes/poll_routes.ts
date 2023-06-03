@@ -41,8 +41,6 @@ export function PollRoutesInit(app: FastifyInstance) {
         is_active: true,
         votes: 0,
       });
-      console.log(newPoll);
-      console.log(options);
       for (const option of options) {
         await req.em.create(PollOption, {
           option_name: option,
@@ -50,7 +48,6 @@ export function PollRoutesInit(app: FastifyInstance) {
           votes: 0,
         });
       }
-      console.log("Created new poll:", newPoll);
       const theTopic = await req.em.findOne(Topic, { id: topic });
       theTopic.updated_at = new Date();
       await req.em.flush();
@@ -63,33 +60,39 @@ export function PollRoutesInit(app: FastifyInstance) {
   });
 
   //search a poll, return info with options
-  app.post<{ Body: { poll_id: number } }>("/poll", async (req, reply) => {
-    const { poll_id } = req.body;
-    try {
-      const thePoll = await req.em.findOne(Poll, { id: poll_id });
-      const theOptions = await req.em.find(PollOption, { Poll: poll_id });
-      //check poll's date and time is expired or not
-      const now = new Date();
-      const pollDate = new Date(thePoll.created_at);
-      const pollDuration = thePoll.duration; //in minutes
-      if (!thePoll.is_permanent) {
-        const pollExpired = new Date(pollDate.getTime() + pollDuration * 60000);
-        if (now > pollExpired) {
-          thePoll.is_active = false;
-          await req.em.flush();
+  app.post<{ Body: { poll_id: number; email: string } }>(
+    "/poll",
+    async (req, reply) => {
+      const { poll_id, email } = req.body;
+      try {
+        const thePoll = await req.em.findOne(Poll, { id: poll_id });
+        const theOptions = await req.em.find(PollOption, { Poll: poll_id });
+        const theUser = await req.em.findOne(User, { email: email });
+        //check poll's date and time is expired or not
+        const now = new Date();
+        const pollDate = new Date(thePoll.created_at);
+        const pollDuration = thePoll.duration; //in minutes
+        if (!thePoll.is_permanent) {
+          const pollExpired = new Date(
+            pollDate.getTime() + pollDuration * 60000
+          );
+          if (now > pollExpired) {
+            thePoll.is_active = false;
+            await req.em.flush();
+          }
         }
+        const response = {
+          options: theOptions,
+          poll: thePoll,
+          user: theUser,
+        };
+        reply.send(response);
+      } catch (err) {
+        console.error(err);
+        reply.status(500).send(err);
       }
-      const response = {
-        options: theOptions,
-        poll: thePoll,
-      };
-      console.log(response);
-      reply.send(response);
-    } catch (err) {
-      console.error(err);
-      reply.status(500).send(err);
     }
-  });
+  );
 
   // udpate a poll
   app.put<{ Body: ICreatePollsBody }>("/polls", async (req, reply) => {
@@ -111,7 +114,6 @@ export function PollRoutesInit(app: FastifyInstance) {
     pollToChange.is_active = is_active;
 
     await req.em.flush();
-    console.log(pollToChange);
     reply.send(pollToChange);
   });
 
@@ -125,7 +127,6 @@ export function PollRoutesInit(app: FastifyInstance) {
       });
       optionToChange.option_name = option_name;
       await req.em.flush();
-      console.log(optionToChange);
       reply.send(optionToChange);
     }
   );
@@ -137,7 +138,6 @@ export function PollRoutesInit(app: FastifyInstance) {
       const thePoll = await req.em.findOne(Poll, { id: poll_id });
       const theOptions = await req.em.find(PollOption, { Poll: thePoll.id });
       await req.em.remove(thePoll).remove(theOptions).flush();
-      console.log(thePoll);
       reply.send(thePoll);
     } catch (err) {
       console.error(err);
@@ -155,7 +155,6 @@ export function PollRoutesInit(app: FastifyInstance) {
           id: poll_option_id,
         });
         await req.em.remove(theOptions).flush();
-        console.log(theOptions);
         reply.send(theOptions);
       } catch (err) {
         console.error(err);
@@ -171,7 +170,6 @@ export function PollRoutesInit(app: FastifyInstance) {
       const { topic_id } = req.body;
       try {
         const thePolls = await req.em.find(Poll, { topic: topic_id });
-        console.log(thePolls);
         //get number of voted user for each poll
         reply.send(thePolls);
       } catch (err) {
@@ -182,23 +180,22 @@ export function PollRoutesInit(app: FastifyInstance) {
   );
 
   //vote on a poll
-  app.post<{ Body: { poll_id: number; option_id: number } }>(
+  app.post<{ Body: { poll_id: number; option_id: number; email: string } }>(
     "/poll/vote",
     async (req, reply) => {
-      const { poll_id, option_id } = req.body;
-
+      const { poll_id, option_id, email } = req.body;
       try {
         const theOption = await req.em.findOne(PollOption, { id: option_id });
         theOption.votes += 1;
         const thePoll = await req.em.findOne(Poll, { id: poll_id });
         thePoll.votes += 1;
-
-        //get topic id
         const theTopic = await req.em.findOne(Topic, { id: thePoll.topic.id });
         theTopic.votes += 1;
-
+        const theUser = await req.em.findOne(User, {
+          email: email,
+        });
+        theUser.voted_polls.push(poll_id);
         await req.em.flush();
-        console.log(theOption);
         reply.send(theOption);
       } catch (err) {
         console.error(err);
@@ -212,7 +209,6 @@ export function PollRoutesInit(app: FastifyInstance) {
     "/topic/createdbyuser",
     async (req, reply) => {
       const { polls } = req.body;
-      //console.log(polls);
       try {
         for (const poll of polls) {
           const theUser = await req.em.findOne(User, {
@@ -224,7 +220,6 @@ export function PollRoutesInit(app: FastifyInstance) {
         for (const poll of polls) {
           createdByList.push(poll.created_by.username);
         }
-        console.log(createdByList);
         reply.send(createdByList);
       } catch (err) {
         console.error(err);

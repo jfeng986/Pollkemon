@@ -37,7 +37,7 @@ const Polls = () => {
   const [newPollDuration, setNewPollDuration] = useState(0);
   const [isPermanent, setIsPermanent] = useState(false);
   const [newPollAllowMultiple, setNewPollAllowMultiple] = useState(false);
-  const [newPollOptions, setNewPollOptions] = useState<string[]>([]);
+  const [newPollOptions, setNewPollOptions] = useState<string>();
   const [sortOrder, setSortOrder] = useState<"newest" | "popularity">("newest");
 
   useEffect(() => {
@@ -100,10 +100,13 @@ const Polls = () => {
   }, [newPollDurationHour, newPollDurationMinute]);
 
   const onCreatePollClick = async () => {
+    let newPollOptionsArray = newPollOptions
+      ?.split(";")
+      .filter((option) => option.trim() !== "");
     if (newPollName.trim() === "") {
       alert("Poll name cannot be empty");
       return;
-    } else if (newPollOptions.length === 0) {
+    } else if (newPollOptionsArray?.length === 0) {
       alert("Poll must have at least one option");
       return;
     } else if (newPollDurationHour < 0 || newPollDurationMinute < 0) {
@@ -120,7 +123,7 @@ const Polls = () => {
         duration: newPollDuration,
         is_active: true,
         allow_multiple: newPollAllowMultiple,
-        options: newPollOptions,
+        options: newPollOptionsArray,
       });
       window.location.reload();
     } catch (error) {
@@ -139,7 +142,7 @@ const Polls = () => {
       <div className="flex justify-between p-8 text-center items-center">
         <div className="flex justify-center">
           <label htmlFor="my-modal" className="btn btn-outline opacity-80">
-            Create New Poll
+            Create Poll
           </label>
           <input type="checkbox" id="my-modal" className="modal-toggle " />
           <div className="modal">
@@ -169,7 +172,7 @@ const Polls = () => {
                 />
               </div>
               <h3 className="font-bold text-2xl flex justify-center pt-4">
-                Duration(remain 0 if permanent):
+                Duration - remain 0 if permanent:
               </h3>
               <div className="flex justify-center p-1">
                 <p className="pr-2 font-bold">Hour: </p>
@@ -208,7 +211,7 @@ const Polls = () => {
                 </label>
               </div>
               <h3 className="font-bold text-2xl flex justify-center pt-4">
-                Options(split by comma):
+                Options - split by semi-colon(;):
               </h3>
               <div className="flex justify-center pt-4">
                 <input
@@ -216,7 +219,7 @@ const Polls = () => {
                   id="options"
                   className="input w-full max-w-xs input-bordered "
                   value={newPollOptions}
-                  onChange={(e) => setNewPollOptions(e.target.value.split(","))}
+                  onChange={(e) => setNewPollOptions(e.target.value)}
                 />
               </div>
 
@@ -237,7 +240,7 @@ const Polls = () => {
         </div>
         <div className="font-bold text-3xl">㊑ Polls for {topicName}</div>
         <div className="flex text-sm font-semibold py-4 px-4 border border-black rounded-xl p-2 opacity-80">
-          <div>Sorted by: </div>
+          <div>Sort by: </div>
           <label className="swap swap-rotate px-1">
             <input
               type="checkbox"
@@ -252,28 +255,26 @@ const Polls = () => {
       </div>
 
       <div>
-        <table className="table w-full  opacity-80">
+        <table className="table w-full opacity-80">
           <thead>
-            <tr>
-              <th className=""></th>
-              <th className="text-2xl">Polls</th>
-              <th className="text-2xl">Descriptions</th>
-              <th className=""></th>
+            <tr className="text-center">
+              <th className="text-2xl w-1/3">Polls</th>
+              <th className="text-2xl w-1/3">Descriptions</th>
+              <th className="w-1/3"></th>
             </tr>
           </thead>
           <tbody>
             {polls.map((poll) => (
-              <tr key={poll.id} className="hover text-xl">
-                <th></th>
-                <th>
+              <tr key={poll.id} className="hover text-xl ">
+                <th className="text-start pl-20">
                   <Link to={`/poll/${poll.id}`}>{poll.title}</Link>
                 </th>
-                <td>
+                <td className="pl-20">
                   {poll.description
                     ? poll.description
                     : "No description available"}
                 </td>
-                <td className="dropdown dropdown-left w-full">
+                <td className="dropdown dropdown-left w-full text-center">
                   <label tabIndex={0} className="btn m-1">
                     More Info
                   </label>
@@ -281,6 +282,7 @@ const Polls = () => {
                     tabIndex={0}
                     className="dropdown-content menu p-2 shadow bg-base-100 rounded-box "
                   >
+                    <li>㊟</li>
                     <li>Created By: {poll.created_by_user}</li>
                     <li>
                       Created At:{" "}

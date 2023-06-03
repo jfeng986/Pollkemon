@@ -36,7 +36,6 @@ const Topics = () => {
           );
         }
         setTopics(sortedTopics);
-        console.log("topics", topics);
       } catch (error) {
         console.error(error);
       }
@@ -87,7 +86,6 @@ const Topics = () => {
       const response = await axios.post("http://localhost:8081/topics", {
         topic_name: newTopic,
       });
-      console.log(response.data);
       setTopics([...topics, response.data]);
       setNewTopic("");
     } catch (error) {
@@ -133,7 +131,7 @@ const Topics = () => {
             </div>
           </div>
           <div className="flex text-sm font-semibold py-4 px-4 border border-black rounded-xl p-2 opacity-80">
-            <div className="">Sorted by: </div>
+            <div className="">Sort by: </div>
             <label className="swap swap-rotate px-1">
               <input
                 type="checkbox"

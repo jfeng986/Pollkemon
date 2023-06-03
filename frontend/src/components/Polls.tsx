@@ -2,33 +2,13 @@ import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth0 } from "@auth0/auth0-react";
-import axios from "axios";
-
-type RouteParams = {
-  topicID: string;
-  topicName: string;
-};
-
-type Poll = {
-  id: number;
-  title: string;
-  topic: number;
-  description: string;
-  created_by: number;
-  is_permanent: boolean;
-  duration: number;
-  is_active: boolean;
-  allow_multiple: boolean;
-  created_by_user: string;
-  votes: number;
-  created_at: string;
-  updated_at: string;
-};
+import { httpClient } from "../services/HttpClient";
+import { Poll } from "../Types";
+import { TopicRouteParams } from "../Types";
 
 const Polls = () => {
   const { user, isAuthenticated, loginWithRedirect } = useAuth0();
-
-  const { topicID, topicName } = useParams<RouteParams>();
+  const { topicID, topicName } = useParams<TopicRouteParams>();
   const [polls, setPolls] = useState<Poll[]>([]);
   const [newPollName, setNewPollName] = useState("");
   const [newPollDescription, setNewPollDescription] = useState("");
@@ -40,10 +20,15 @@ const Polls = () => {
   const [newPollOptions, setNewPollOptions] = useState<string>();
   const [sortOrder, setSortOrder] = useState<"newest" | "popularity">("newest");
 
+  if (!isAuthenticated || !user) {
+    loginWithRedirect();
+    return null;
+  }
+
   useEffect(() => {
     const getPolls = async () => {
       try {
-        const response = await axios.post(`http://localhost:8081/topic/polls`, {
+        const response = await httpClient.post(`/topic/polls`, {
           topic_id: topicID,
         });
         const pollsWithUserNames = await Promise.all(
@@ -52,9 +37,7 @@ const Polls = () => {
             return { ...poll, created_by_user };
           })
         );
-
         let sortedPolls;
-
         if (sortOrder === "newest") {
           sortedPolls = pollsWithUserNames.sort(
             (a: Poll, b: Poll) =>
@@ -66,28 +49,13 @@ const Polls = () => {
             (a: Poll, b: Poll) => b.votes - a.votes
           );
         }
-
         setPolls(sortedPolls);
       } catch (error) {
         console.error(error);
       }
     };
-
     getPolls();
   }, [sortOrder]);
-
-  const getUserName = async (id: number) => {
-    try {
-      const response = await axios.post(
-        `http://localhost:8081/users/searchid`,
-        { id }
-      );
-      return response.data.username;
-    } catch (error) {
-      console.error(error);
-      return "";
-    }
-  };
 
   useEffect(() => {
     if (newPollDurationHour === 0 && newPollDurationMinute === 0) {
@@ -98,6 +66,16 @@ const Polls = () => {
       setNewPollDuration(newPollDurationHour * 60 + newPollDurationMinute);
     }
   }, [newPollDurationHour, newPollDurationMinute]);
+
+  const getUserName = async (id: number) => {
+    try {
+      const response = await httpClient.post(`/users/searchid`, { id });
+      return response.data.username;
+    } catch (error) {
+      console.error(error);
+      return "";
+    }
+  };
 
   const onCreatePollClick = async () => {
     let newPollOptionsArray = newPollOptions
@@ -114,7 +92,7 @@ const Polls = () => {
       return;
     }
     try {
-      await axios.post("http://localhost:8081/polls", {
+      await httpClient.post("/polls", {
         title: newPollName,
         description: newPollDescription,
         topic: topicID,
@@ -131,11 +109,6 @@ const Polls = () => {
       return "";
     }
   };
-
-  if (!isAuthenticated || !user) {
-    loginWithRedirect();
-    return null;
-  }
 
   return (
     <div>
@@ -253,7 +226,6 @@ const Polls = () => {
           </label>
         </div>
       </div>
-
       <div>
         <table className="table w-full opacity-80">
           <thead>

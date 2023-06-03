@@ -1,36 +1,12 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useAuth0 } from "@auth0/auth0-react";
-import axios from "axios";
-
-type RouteParams = {
-  pollID: string;
-};
-
-type PollOption = {
-  Poll: number;
-  id: number;
-  option_name: number;
-  created_at: string;
-  updated_at: string;
-  votes: number;
-  colorClass: string;
-};
-
-type Poll = {
-  title: string;
-  allow_multiple: boolean;
-  created_at: string;
-  updated_at: string;
-  description: string;
-  duration: number;
-  is_active: boolean;
-  is_permanent: boolean;
-  votes: number;
-};
+import { httpClient } from "../services/HttpClient";
+import { PollRouteParams, PollOption, Poll } from "../Types";
+import { RandomColorClass } from "../assets/Color";
 
 const PollPage = () => {
-  const { pollID } = useParams<RouteParams>();
+  const { pollID } = useParams<PollRouteParams>();
   const [poll, setPoll] = useState<Poll>();
   const [pollOptions, setPollOptions] = useState<PollOption[]>([]);
   const [checkedOptions, setCheckedOptions] = useState<number[]>([]);
@@ -40,30 +16,48 @@ const PollPage = () => {
   const [hasVoted, setHasVoted] = useState(false);
   const { user, isAuthenticated, loginWithRedirect } = useAuth0();
 
-  const getRandomColorClass = () => {
-    const colors = [
-      "text-orange-500",
-      "text-pink-500",
-      "text-teal-500",
-      "text-red-500",
-      "text-fuchsia-500",
-      "text-rose-500",
-      "text-blue-500",
-      "text-yellow-500",
-      "text-purple-500",
-      "text-violet-500",
-      "text-indigo-500",
-      "text-sky-500",
-      "text-gray-500",
-      "text-cyan-500",
-      "text-lime-500",
-      "text-emerald-500",
-      "text-amber-500",
-      "text-lightBlue-500",
-    ];
-    const randomIndex = Math.floor(Math.random() * colors.length);
-    return colors[randomIndex];
-  };
+  if (!isAuthenticated || !user) {
+    loginWithRedirect();
+    return null;
+  }
+
+  useEffect(() => {
+    const getPollOptions = async () => {
+      try {
+        const response = await httpClient.post(`/poll`, {
+          poll_id: pollID,
+          email: user?.email,
+        });
+        const sortedOptions = response.data.options
+          .sort((a: PollOption, b: PollOption) => a.id - b.id)
+          .map((option: PollOption) => ({
+            ...option,
+            colorClass: RandomColorClass(),
+          }));
+        setPoll(response.data.poll);
+        setPollOptions(sortedOptions);
+        if (response.data.user) {
+          const user = response.data.user;
+          if (user.voted_polls.map(Number).includes(Number(pollID))) {
+            setHasVoted(true);
+          }
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    getPollOptions();
+  }, []);
+
+  useEffect(() => {
+    const totalVotes = pollOptions.reduce(
+      (sum, option) => sum + option.votes,
+      0
+    );
+    if (poll) {
+      setPoll({ ...poll, votes: totalVotes });
+    }
+  }, [pollOptions]);
 
   useEffect(() => {
     if (poll && poll.is_active) {
@@ -126,45 +120,8 @@ const PollPage = () => {
     window.location.reload();
   };
 
-  useEffect(() => {
-    const getPollOptions = async () => {
-      try {
-        const response = await axios.post(`http://localhost:8081/poll`, {
-          poll_id: pollID,
-          email: user?.email,
-        });
-        const sortedOptions = response.data.options
-          .sort((a: PollOption, b: PollOption) => a.id - b.id)
-          .map((option: PollOption) => ({
-            ...option,
-            colorClass: getRandomColorClass(),
-          }));
-        setPoll(response.data.poll);
-        setPollOptions(sortedOptions);
-        if (response.data.user) {
-          const user = response.data.user;
-          if (user.voted_polls.map(Number).includes(Number(pollID))) {
-            setHasVoted(true);
-          }
-        }
-      } catch (error) {
-        console.error(error);
-      }
-    };
-    getPollOptions();
-  }, []);
-
-  useEffect(() => {
-    const totalVotes = pollOptions.reduce(
-      (sum, option) => sum + option.votes,
-      0
-    );
-    if (poll) {
-      setPoll({ ...poll, votes: totalVotes });
-    }
-  }, [pollOptions]);
   const onPollOptionClick = async (option: PollOption) => {
-    const response = await axios.post(`http://localhost:8081/poll/vote`, {
+    const response = await httpClient.post(`/poll/vote`, {
       email: user?.email,
       poll_id: pollID,
       option_id: option.id,
@@ -181,11 +138,6 @@ const PollPage = () => {
         .sort((a, b) => a.id - b.id)
     );
   };
-
-  if (!isAuthenticated || !user) {
-    loginWithRedirect();
-    return null;
-  }
 
   return (
     <div>
@@ -226,7 +178,6 @@ const PollPage = () => {
           {poll?.allow_multiple ? "Multiple Selection" : "Single Selection"}
         </p>
       </div>
-
       <div className="overflow-x-auto w-full">
         <table className="table w-full">
           <thead>
@@ -254,7 +205,6 @@ const PollPage = () => {
                 <td>
                   <div className="opacity-80">{pollOption.votes}</div>
                 </td>
-
                 <td>
                   <div
                     className={`radial-progress ${pollOption.colorClass}`}

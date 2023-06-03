@@ -1,15 +1,9 @@
 import { useAuth0 } from "@auth0/auth0-react";
 import { useEffect, useState } from "react";
-import axios from "axios";
+import { httpClient } from "../services/HttpClient";
 import { Link, useLocation } from "react-router-dom";
-
-type Topic = {
-  id: number;
-  created_at: string;
-  updated_at: string;
-  topic_name: string;
-  votes: number;
-};
+import { Topic } from "../Types";
+import { RandomColorBg } from "../assets/Color";
 
 const Topics = () => {
   const { user, isAuthenticated, loginWithRedirect } = useAuth0();
@@ -21,7 +15,7 @@ const Topics = () => {
   useEffect(() => {
     const getTopics = async () => {
       try {
-        const response = await axios.get("http://localhost:8081/topics");
+        const response = await httpClient.get("/topics");
         let sortedTopics;
         if (sortOrder === "newest") {
           sortedTopics = response.data.sort((a: Topic, b: Topic) => {
@@ -43,31 +37,6 @@ const Topics = () => {
     getTopics();
   }, [location, sortOrder]);
 
-  const getRandomColorClass = () => {
-    const colors = [
-      "bg-orange-500",
-      "bg-pink-500",
-      "bg-teal-500",
-      "bg-red-500",
-      "bg-fuchsia-500",
-      "bg-rose-500",
-      "bg-blue-500",
-      "bg-yellow-500",
-      "bg-purple-500",
-      "bg-violet-500",
-      "bg-indigo-500",
-      "bg-sky-500",
-      "bg-gray-500",
-      "bg-cyan-500",
-      "bg-lime-500",
-      "bg-emerald-500",
-      "bg-amber-500",
-      "bg-lightBlue-500",
-    ];
-    const randomIndex = Math.floor(Math.random() * colors.length);
-    return colors[randomIndex];
-  };
-
   const handleTopicClick = () => {
     if (!isAuthenticated || !user) {
       console.log("User is not authenticated");
@@ -83,7 +52,7 @@ const Topics = () => {
       return;
     }
     try {
-      const response = await axios.post("http://localhost:8081/topics", {
+      const response = await httpClient.post("/topics", {
         topic_name: newTopic,
       });
       setTopics([...topics, response.data]);
@@ -154,7 +123,7 @@ const Topics = () => {
             >
               <Link to={`/topic/${topic.topic_name}/${topic.id}`}>
                 <button
-                  className={`btn ${getRandomColorClass()} `}
+                  className={`btn ${RandomColorBg()} `}
                   onClick={handleTopicClick}
                 >
                   {topic.topic_name}

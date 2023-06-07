@@ -7,7 +7,8 @@ import { Poll } from "../Types";
 import { TopicRouteParams } from "../Types";
 
 const Polls = () => {
-  const { user, isAuthenticated, loginWithRedirect } = useAuth0();
+  const { user, isAuthenticated, loginWithRedirect, getAccessTokenSilently } =
+    useAuth0();
   const { topicID, topicName } = useParams<TopicRouteParams>();
   const [polls, setPolls] = useState<Poll[]>([]);
   const [newPollName, setNewPollName] = useState("");
@@ -28,9 +29,19 @@ const Polls = () => {
   useEffect(() => {
     const getPolls = async () => {
       try {
-        const response = await httpClient.post(`/topic/polls`, {
-          topic_id: topicID,
-        });
+        const accessToken = await getAccessTokenSilently();
+        console.log(accessToken);
+        const response = await httpClient.post(
+          `/topic/polls`,
+          {
+            topic_id: topicID,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          }
+        );
         const pollsWithUserNames = await Promise.all(
           response.data.map(async (poll: Poll) => {
             const created_by_user = await getUserName(poll.created_by);

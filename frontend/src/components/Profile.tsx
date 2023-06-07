@@ -44,6 +44,7 @@ const Profile = () => {
             scope: "read:current_user",
           },
         });
+        //localStorage.setItem("jwt", accessToken);
         /*
         const metadataResponse = await httpClient.get("/profile", {
           headers: {

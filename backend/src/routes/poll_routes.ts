@@ -5,6 +5,7 @@ import { PollOption } from "../db/entities/PollOption.js";
 import { ICreatePollOptionsBody } from "../types.js";
 import { User } from "../db/entities/User.js";
 import { Topic } from "../db/entities/Topic.js";
+import jwtVerify from "fastify-auth0-verify";
 
 export function PollRoutesInit(app: FastifyInstance) {
   // CRUD
@@ -166,8 +167,12 @@ export function PollRoutesInit(app: FastifyInstance) {
   // get all polls for a topic
   app.post<{ Body: { topic_id: number } }>(
     "/topic/polls",
+    {
+      preValidation: app.auth,
+    },
     async (req, reply) => {
       const { topic_id } = req.body;
+      console.log("req.body", req.body);
       try {
         const thePolls = await req.em.find(Poll, { topic: topic_id });
         //get number of voted user for each poll

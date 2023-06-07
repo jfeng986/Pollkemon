@@ -1,25 +1,14 @@
-import { Entity, Property, ManyToOne, Enum } from "@mikro-orm/core";
-import { User } from "./User.js";
+import { Property, Entity, ManyToOne } from "@mikro-orm/core";
 import { BaseEntity } from "./BaseEntity.js";
+import { User } from "./User.js";
+import { Topic } from "./Topic.js";
 
-enum Topic {
-  School = "School",
-  Car = "Car",
-  Food = "Food",
-  Movie = "Movie",
-  Music = "Music",
-  Sport = "Sport",
-  Travel = "Travel",
-  Game = "Game",
-  Other = "Other",
-}
-
-@Entity()
+@Entity({ tableName: "polls" })
 export class Poll extends BaseEntity {
   @Property()
   title!: string;
 
-  @Enum({ items: () => Topic })
+  @ManyToOne(() => Topic)
   topic!: Topic;
 
   @Property()
@@ -27,9 +16,6 @@ export class Poll extends BaseEntity {
 
   @ManyToOne(() => User)
   created_by!: User;
-
-  @Property()
-  options!: Map<string, User[]>; // option -> users who voted for it
 
   @Property()
   is_permanent!: boolean;
@@ -42,4 +28,7 @@ export class Poll extends BaseEntity {
 
   @Property()
   allow_multiple!: boolean;
+
+  @Property()
+  votes!: number;
 }

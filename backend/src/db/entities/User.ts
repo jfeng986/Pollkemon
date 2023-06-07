@@ -11,5 +11,5 @@ export class User extends BaseEntity {
   username!: string;
 
   @Property()
-  password!: string;
+  voted_polls!: number[];
 }

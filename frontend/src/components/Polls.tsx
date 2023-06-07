@@ -81,10 +81,11 @@ const Polls = () => {
     let newPollOptionsArray = newPollOptions
       ?.split(";")
       .filter((option) => option.trim() !== "");
+    console.log(newPollOptionsArray?.length);
     if (newPollName.trim() === "") {
       alert("Poll name cannot be empty");
       return;
-    } else if (newPollOptionsArray?.length === 0) {
+    } else if (newPollOptionsArray?.length === 0 || !newPollOptionsArray) {
       alert("Poll must have at least one option");
       return;
     } else if (newPollDurationHour < 0 || newPollDurationMinute < 0) {
@@ -96,7 +97,7 @@ const Polls = () => {
         title: newPollName,
         description: newPollDescription,
         topic: topicID,
-        created_by: user?.email,
+        created_by: user.email,
         is_permanent: isPermanent,
         duration: newPollDuration,
         is_active: true,

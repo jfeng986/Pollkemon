@@ -105,19 +105,20 @@ const PollPage = () => {
     }
   };
 
-  const handleVoteClick = () => {
+  const handleVoteClick = async () => {
     if (checkedOptions.length === 0) {
       alert("Please select at least one option");
       return;
     }
-    checkedOptions.forEach((optionId) => {
+    for (const optionId of checkedOptions) {
       const option = pollOptions.find((o) => o.id === optionId);
       if (option) {
-        onPollOptionClick(option);
+        await onPollOptionClick(option);
       }
-    });
+    }
     setCheckedOptions([]);
-    window.location.reload();
+    setHasVoted(true);
+    //window.location.reload();
   };
 
   const onPollOptionClick = async (option: PollOption) => {

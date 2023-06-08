@@ -1,15 +1,11 @@
-import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
+import { FastifyInstance } from "fastify";
 import { Poll } from "../db/entities/Poll.js";
 import { ICreatePollsBody } from "../types.js";
 import { PollOption } from "../db/entities/PollOption.js";
-import { ICreatePollOptionsBody } from "../types.js";
 import { User } from "../db/entities/User.js";
 import { Topic } from "../db/entities/Topic.js";
-import jwtVerify from "fastify-auth0-verify";
 
 export function PollRoutesInit(app: FastifyInstance) {
-  // CRUD
-
   // create a poll with options
   app.post<{ Body: ICreatePollsBody }>("/polls", async (req, reply) => {
     const {
@@ -22,7 +18,6 @@ export function PollRoutesInit(app: FastifyInstance) {
       allow_multiple,
       options,
     } = req.body;
-    //search userID by email
     try {
       const created_by_email = String(created_by);
       const theUser = await req.em.findOne(User, { email: created_by_email });
@@ -95,43 +90,6 @@ export function PollRoutesInit(app: FastifyInstance) {
         console.error(err);
         reply.status(500).send(err);
       }
-    }
-  );
-
-  // udpate a poll
-  app.put<{ Body: ICreatePollsBody }>("/polls", async (req, reply) => {
-    const {
-      poll_id,
-      title,
-      description,
-      is_permanent,
-      duration,
-      allow_multiple,
-      is_active,
-    } = req.body;
-    const pollToChange = await req.em.findOne(Poll, { id: poll_id });
-    pollToChange.title = title;
-    pollToChange.description = description;
-    pollToChange.is_permanent = is_permanent;
-    pollToChange.duration = duration;
-    pollToChange.allow_multiple = allow_multiple;
-    pollToChange.is_active = is_active;
-
-    await req.em.flush();
-    reply.send(pollToChange);
-  });
-
-  // udpate a poll option
-  app.put<{ Body: ICreatePollOptionsBody }>(
-    "/poll/option",
-    async (req, reply) => {
-      const { poll_option_id, option_name } = req.body;
-      const optionToChange = await req.em.findOne(PollOption, {
-        id: poll_option_id,
-      });
-      optionToChange.option_name = option_name;
-      await req.em.flush();
-      reply.send(optionToChange);
     }
   );
 
@@ -215,30 +173,6 @@ export function PollRoutesInit(app: FastifyInstance) {
       } catch (err) {
         console.error(err);
         reply.status(500).send(err);
-      }
-    }
-  );
-
-  //get all polls created by users
-  app.post<{ Body: { polls: Poll[] } }>(
-    "/topic/createdbyuser",
-    async (req, reply) => {
-      const { polls } = req.body;
-      try {
-        for (const poll of polls) {
-          const theUser = await req.em.findOne(User, {
-            id: Number(poll.created_by),
-          });
-          poll.created_by = theUser;
-        }
-        let createdByList = [];
-        for (const poll of polls) {
-          createdByList.push(poll.created_by.username);
-        }
-        reply.send(createdByList);
-      } catch (err) {
-        console.error(err);
-        reply.send(err);
       }
     }
   );

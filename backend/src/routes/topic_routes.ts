@@ -1,10 +1,9 @@
-import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
+import { FastifyInstance } from "fastify";
 import { Topic } from "../db/entities/Topic.js";
 import { ICreateTopicsBody } from "../types.js";
 
 export function TopicRoutesInit(app: FastifyInstance) {
-  // CRUD
-  // C
+  //create a topic
   app.post<{ Body: ICreateTopicsBody }>(
     "/topics",
     {
@@ -27,46 +26,11 @@ export function TopicRoutesInit(app: FastifyInstance) {
     }
   );
 
-  // U
-  app.put<{ Body: ICreateTopicsBody }>(
-    "/topics",
-    {
-      preValidation: app.auth,
-    },
-    async (req, reply) => {
-      const { topic_id, topic_name } = req.body;
-      const topicToChange = await req.em.findOne(Topic, { id: topic_id });
-      topicToChange.topic_name = topic_name;
-      await req.em.flush();
-      reply.send(topicToChange);
-    }
-  );
-
-  // D
-  app.delete<{ Body: { topic_id } }>(
-    "/topics",
-    {
-      preValidation: app.auth,
-    },
-    async (req, reply) => {
-      const { topic_id } = req.body;
-      try {
-        const theTopic = await req.em.findOne(Topic, { id: topic_id });
-        await req.em.remove(theTopic).flush();
-        reply.send(theTopic);
-      } catch (err) {
-        console.error(err);
-        reply.status(500).send(err);
-      }
-    }
-  );
-
   // Get all topics
   app.get("/topics", async (req, reply) => {
     try {
       const theTopics = await req.em.find(Topic, {});
       const theTopicsArray = Array.from(theTopics);
-
       reply.send(theTopicsArray);
     } catch (err) {
       console.error(err);

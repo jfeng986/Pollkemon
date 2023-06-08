@@ -14,7 +14,8 @@ const PollPage = () => {
   const [remainMinutes, setRemainMinutes] = useState(0);
   const [remainSeconds, setRemainSeconds] = useState(0);
   const [hasVoted, setHasVoted] = useState(false);
-  const { user, isAuthenticated, loginWithRedirect } = useAuth0();
+  const { user, isAuthenticated, loginWithRedirect, getAccessTokenSilently } =
+    useAuth0();
 
   if (!isAuthenticated || !user) {
     loginWithRedirect();
@@ -24,10 +25,20 @@ const PollPage = () => {
   useEffect(() => {
     const getPollOptions = async () => {
       try {
-        const response = await httpClient.post(`/poll`, {
-          poll_id: pollID,
-          email: user?.email,
-        });
+        const accessToken = await getAccessTokenSilently();
+
+        const response = await httpClient.post(
+          `/poll`,
+          {
+            poll_id: pollID,
+            email: user.email,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          }
+        );
         const sortedOptions = response.data.options
           .sort((a: PollOption, b: PollOption) => a.id - b.id)
           .map((option: PollOption) => ({
@@ -36,18 +47,16 @@ const PollPage = () => {
           }));
         setPoll(response.data.poll);
         setPollOptions(sortedOptions);
-        if (response.data.user) {
-          const user = response.data.user;
-          if (user.voted_polls.map(Number).includes(Number(pollID))) {
-            setHasVoted(true);
-          }
+        const theUser = response.data.user;
+        if (theUser?.voted_polls.map(Number).includes(Number(pollID))) {
+          setHasVoted(true);
         }
       } catch (error) {
         console.error(error);
       }
     };
     getPollOptions();
-  }, []);
+  }, [pollID, user?.email]);
 
   useEffect(() => {
     const totalVotes = pollOptions.reduce(
@@ -105,27 +114,37 @@ const PollPage = () => {
     }
   };
 
-  const handleVoteClick = () => {
+  const handleVoteClick = async () => {
     if (checkedOptions.length === 0) {
       alert("Please select at least one option");
       return;
     }
-    checkedOptions.forEach((optionId) => {
+    for (const optionId of checkedOptions) {
       const option = pollOptions.find((o) => o.id === optionId);
       if (option) {
-        onPollOptionClick(option);
+        await onPollOptionClick(option);
       }
-    });
+    }
     setCheckedOptions([]);
-    window.location.reload();
+    setHasVoted(true);
   };
 
   const onPollOptionClick = async (option: PollOption) => {
-    const response = await httpClient.post(`/poll/vote`, {
-      email: user?.email,
-      poll_id: pollID,
-      option_id: option.id,
-    });
+    const accessToken = await getAccessTokenSilently();
+    console.log("accessToken", accessToken);
+    const response = await httpClient.post(
+      `/poll/vote`,
+      {
+        email: user?.email,
+        poll_id: pollID,
+        option_id: option.id,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    );
     const updatedOption = response.data;
     const users = updatedOption.users;
     setPollOptions((prevOptions) =>

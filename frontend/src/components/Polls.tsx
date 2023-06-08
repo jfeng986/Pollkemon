@@ -3,11 +3,11 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth0 } from "@auth0/auth0-react";
 import { httpClient } from "../services/HttpClient";
-import { Poll } from "../Types";
-import { TopicRouteParams } from "../Types";
+import { Poll, TopicRouteParams } from "../Types";
 
 const Polls = () => {
-  const { user, isAuthenticated, loginWithRedirect } = useAuth0();
+  const { user, isAuthenticated, loginWithRedirect, getAccessTokenSilently } =
+    useAuth0();
   const { topicID, topicName } = useParams<TopicRouteParams>();
   const [polls, setPolls] = useState<Poll[]>([]);
   const [newPollName, setNewPollName] = useState("");
@@ -28,9 +28,20 @@ const Polls = () => {
   useEffect(() => {
     const getPolls = async () => {
       try {
-        const response = await httpClient.post(`/topic/polls`, {
-          topic_id: topicID,
-        });
+        const accessToken = await getAccessTokenSilently();
+        console.log(accessToken);
+
+        const response = await httpClient.post(
+          `/topic/polls`,
+          {
+            topic_id: topicID,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          }
+        );
         const pollsWithUserNames = await Promise.all(
           response.data.map(async (poll: Poll) => {
             const created_by_user = await getUserName(poll.created_by);
@@ -81,10 +92,11 @@ const Polls = () => {
     let newPollOptionsArray = newPollOptions
       ?.split(";")
       .filter((option) => option.trim() !== "");
+    console.log(newPollOptionsArray?.length);
     if (newPollName.trim() === "") {
       alert("Poll name cannot be empty");
       return;
-    } else if (newPollOptionsArray?.length === 0) {
+    } else if (newPollOptionsArray?.length === 0 || !newPollOptionsArray) {
       alert("Poll must have at least one option");
       return;
     } else if (newPollDurationHour < 0 || newPollDurationMinute < 0) {
@@ -96,7 +108,7 @@ const Polls = () => {
         title: newPollName,
         description: newPollDescription,
         topic: topicID,
-        created_by: user?.email,
+        created_by: user.email,
         is_permanent: isPermanent,
         duration: newPollDuration,
         is_active: true,

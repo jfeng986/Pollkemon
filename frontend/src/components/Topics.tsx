@@ -6,7 +6,8 @@ import { Topic } from "../Types";
 import { RandomColorBg } from "../assets/Color";
 
 const Topics = () => {
-  const { user, isAuthenticated, loginWithRedirect } = useAuth0();
+  const { user, isAuthenticated, loginWithRedirect, getAccessTokenSilently } =
+    useAuth0();
   const [newTopic, setNewTopic] = useState("");
   const [topics, setTopics] = useState<Topic[]>([]);
   const [sortOrder, setSortOrder] = useState<"newest" | "popularity">("newest");
@@ -14,8 +15,9 @@ const Topics = () => {
 
   useEffect(() => {
     const getTopics = async () => {
+      //const accessToken = await getAccessTokenSilently();
       try {
-        const response = await httpClient.get("/topics");
+        const response = await httpClient.get("/topics", {});
         let sortedTopics;
         if (sortOrder === "newest") {
           sortedTopics = response.data.sort((a: Topic, b: Topic) => {
@@ -51,10 +53,20 @@ const Topics = () => {
       alert("Topic name cannot be empty");
       return;
     }
+    const accessToken = await getAccessTokenSilently();
+    console.log("accessToken", accessToken);
     try {
-      const response = await httpClient.post("/topics", {
-        topic_name: newTopic,
-      });
+      const response = await httpClient.post(
+        "/topics",
+        {
+          topic_name: newTopic,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      );
       setTopics([...topics, response.data]);
       setNewTopic("");
     } catch (error) {

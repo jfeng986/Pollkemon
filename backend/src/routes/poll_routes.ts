@@ -63,6 +63,9 @@ export function PollRoutesInit(app: FastifyInstance) {
   //search a poll, return info with options
   app.post<{ Body: { poll_id: number; email: string } }>(
     "/poll",
+    {
+      preValidation: app.auth,
+    },
     async (req, reply) => {
       const { poll_id, email } = req.body;
       try {
@@ -149,6 +152,9 @@ export function PollRoutesInit(app: FastifyInstance) {
   // delete a poll option
   app.delete<{ Body: { poll_option_id } }>(
     "/poll/option",
+    {
+      preValidation: app.auth,
+    },
     async (req, reply) => {
       const { poll_option_id } = req.body;
       try {
@@ -187,6 +193,9 @@ export function PollRoutesInit(app: FastifyInstance) {
   //vote on a poll
   app.post<{ Body: { poll_id: number; option_id: number; email: string } }>(
     "/poll/vote",
+    {
+      preValidation: app.auth,
+    },
     async (req, reply) => {
       const { poll_id, option_id, email } = req.body;
       console.log("req.body", req.body);

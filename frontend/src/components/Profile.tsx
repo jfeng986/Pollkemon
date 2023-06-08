@@ -15,11 +15,20 @@ const Profile = () => {
 
   useEffect(() => {
     const searchUserByEmail = async () => {
+      const accessToken = await getAccessTokenSilently();
       try {
-        const response = await httpClient.post("/users", {
-          username: username,
-          email: userEmail,
-        });
+        const response = await httpClient.post(
+          "/users",
+          {
+            username: username,
+            email: userEmail,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          }
+        );
         setFoundUser(response.data);
       } catch (error) {
         console.error(error);
@@ -44,14 +53,6 @@ const Profile = () => {
             scope: "read:current_user",
           },
         });
-        //localStorage.setItem("jwt", accessToken);
-        /*
-        const metadataResponse = await httpClient.get("/profile", {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        });
-          */
         let payload = getPayloadFromToken(accessToken);
         console.log(payloadEmail);
         const email = payload[payloadEmail];

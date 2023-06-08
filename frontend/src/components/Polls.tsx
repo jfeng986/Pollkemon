@@ -3,8 +3,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth0 } from "@auth0/auth0-react";
 import { httpClient } from "../services/HttpClient";
-import { Poll } from "../Types";
-import { TopicRouteParams } from "../Types";
+import { Poll, TopicRouteParams } from "../Types";
 
 const Polls = () => {
   const { user, isAuthenticated, loginWithRedirect, getAccessTokenSilently } =
@@ -31,6 +30,7 @@ const Polls = () => {
       try {
         const accessToken = await getAccessTokenSilently();
         console.log(accessToken);
+
         const response = await httpClient.post(
           `/topic/polls`,
           {

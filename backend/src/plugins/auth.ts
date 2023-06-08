@@ -24,18 +24,18 @@ export const AuthPlugin = fp(async function (
   opts: FastifyPluginOptions
 ) {
   app.register(fastifyAuth0Verify, {
-    domain: "dev-z3zlzuy1iirtsvpc.us.auth0.com",
-    secret: "fEG_YJWzZp5k-2XqTFLv5yEydd3tIsYwLsWYuoQqsYtLD_HEq6DHtycBWENT0-Ex",
-    audience: "https://dev-z3zlzuy1iirtsvpc.us.auth0.com/api/v2/",
+    secret: process.env.AUTH0_SECRET,
+    domain: process.env.AUTH0_DOMAIN,
+    audience: process.env.AUTH0_AUDIENCE,
   });
 
   app.decorate(
     "auth",
     async function (request: FastifyRequest, reply: FastifyReply) {
       try {
-        console.log("authenticating");
+        console.log("authenticating jwt");
         await request.jwtVerify();
-        console.log("authenticated");
+        console.log("jwt verified");
       } catch (err) {
         reply.send(err);
       }

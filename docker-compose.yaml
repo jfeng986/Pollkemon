@@ -5,7 +5,7 @@ services:
     image: postgres:15-alpine
     restart: always
     ports:
-      - "5433:5432"
+      - "5432:5432"
     volumes:
       - db:/var/lib/postgresql/data
     environment:
@@ -23,7 +23,7 @@ services:
     build: ./backend/
     restart: always
     ports:
-      - "8081:8080"
+      - "8080:8080"
     environment:
       - DB_HOST=postgres
       - DB_PORT=5432
@@ -32,6 +32,26 @@ services:
       - DB_PASS=pollkemon
       - PORT=8080
       - HOST=0.0.0.0
+      - AUTH0_SECRET=fEG_YJWzZp5k-2XqTFLv5yEydd3tIsYwLsWYuoQqsYtLD_HEq6DHtycBWENT0-Ex
+      - AUTH0_AUDIENCE=https://dev-z3zlzuy1iirtsvpc.us.auth0.com/api/v2/
+      - AUTH0_DOMAIN=dev-z3zlzuy1iirtsvpc.us.auth0.com
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  frontend:
+    container_name: PollkemonFrontend
+    build: ./frontend/
+    restart: always
+    ports:
+      - "5173:80"
+    environment:
+      - VITE_APP_AUTH0_DOMAIN=dev-z3zlzuy1iirtsvpc.us.auth0.com
+      - VITE_APP_AUTH0_CLIENT_ID=ZLwgZFeco0puKRtZ4eTFuGB9ryPyGAmZ
+      - VITE_API_HOST=backend
+      - VITE_PORT=8080
+      - VITE_PAYLOAD_EMAIL=http://backend:5173/email
+      - VITE_PAYLOAD_USERNAME=http://backend:5173/nickname
     depends_on:
       postgres:
         condition: service_healthy

@@ -32,9 +32,9 @@ services:
       - DB_PASS=pollkemon
       - PORT=8080
       - HOST=0.0.0.0
-      - AUTH0_SECRET=fEG_YJWzZp5k-2XqTFLv5yEydd3tIsYwLsWYuoQqsYtLD_HEq6DHtycBWENT0-Ex
-      - AUTH0_AUDIENCE=https://dev-z3zlzuy1iirtsvpc.us.auth0.com/api/v2/
-      - AUTH0_DOMAIN=dev-z3zlzuy1iirtsvpc.us.auth0.com
+      - AUTH0_SECRET=YOUR_AUTH0_SECRET
+      - AUTH0_AUDIENCE=YOUR_AUTH0_SECRET
+      - AUTH0_DOMAIN=YOUR_AUTH0_SECRET
     depends_on:
       postgres:
         condition: service_healthy
@@ -46,8 +46,8 @@ services:
     ports:
       - "5173:80"
     environment:
-      - VITE_APP_AUTH0_DOMAIN=dev-z3zlzuy1iirtsvpc.us.auth0.com
-      - VITE_APP_AUTH0_CLIENT_ID=ZLwgZFeco0puKRtZ4eTFuGB9ryPyGAmZ
+      - VITE_APP_AUTH0_DOMAIN=YOUR_AUTH0_SECRET
+      - VITE_APP_AUTH0_CLIENT_ID=YOUR_AUTH0_SECRET
       - VITE_API_HOST=backend
       - VITE_PORT=8080
       - VITE_PAYLOAD_EMAIL=http://backend:5173/email
